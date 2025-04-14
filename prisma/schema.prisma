@@ -9,31 +9,31 @@ datasource db {
 }
 
 // Enum for test sections
-enum TestSection {
-  Listening
-  Reading
-  Writing
-  Speaking
+enum test_section {
+  listening
+  reading
+  writing
+  speaking
 }
 
 // Enum for test quarters
-enum TestQuarter {
-  Q1
-  Q2
-  Q3
-  Q4
+enum test_quarter {
+  q1
+  q2
+  q3
+  q4
 }
 
 // Role table
-model Role {
+model role {
   role_id   String @id @default(uuid()) @db.Uuid
   role_name String @unique @db.VarChar(50)
-  users     User[]
-  permissions Permission[]
+  users     user[]
+  permissions permission[]
 }
 
 // English Center table
-model EnglishCenter {
+model english_center {
   center_id   String @id @default(uuid()) @db.Uuid
   center_name String @db.VarChar(100)
   address     String? @db.VarChar(255)
@@ -41,16 +41,16 @@ model EnglishCenter {
   contact_phone String? @db.VarChar(20)
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now()) @updatedAt
-  tests       Test[]
-  courses     Course[]
-  mockExams   MockExam[]
-  reports     Report[]
-  users       User[] 
-  testAndCenterReviews TestAndCenterReview[]
+  tests       test[]
+  courses     course[]
+  mock_exams   mock_exam[]
+  reports     report[]
+  users       user[] 
+  test_and_center_reviews test_and_center_review[]
 }
 
 // Bảng đánh giá học viên từ giảng viên
-model StudentEvaluations {
+model student_evaluations {
   evaluation_id       String   @id @default(uuid()) @db.Uuid
   result_id           String   @db.Uuid
   evaluator_id        String   @db.Uuid
@@ -58,63 +58,63 @@ model StudentEvaluations {
   evaluation_score    Decimal  @db.Decimal(3, 1)  // Điểm đánh giá tổng quát
   created_at          DateTime @default(now())
   
-  result              TestResult @relation(fields: [result_id], references: [result_id])
-  evaluator           User      @relation(fields: [evaluator_id], references: [user_id])
+  result              test_result @relation(fields: [result_id], references: [result_id])
+  evaluator           user      @relation(fields: [evaluator_id], references: [user_id])
 }
 
 // Bảng quản lý thông báo và nhắc nhở cho học viên
-model Notification {
+model notification {
   notification_id   String    @id @default(uuid()) @db.Uuid
   user_id           String    @db.Uuid
   notification_type String    @db.VarChar(100)  // Loại thông báo
   content           String?   // Nội dung thông báo
   sent_at           DateTime  @default(now())
-  user              User      @relation(fields: [user_id], references: [user_id])
+  user              user      @relation(fields: [user_id], references: [user_id])
 }
 
 // User table
-model User {
+model user {
   user_id    String @id @default(uuid()) @db.Uuid
   username   String @unique @db.VarChar(100)
   password   String @db.VarChar(255)
   email      String @unique @db.VarChar(100)
   role_id    String @db.Uuid
-  role       Role @relation(fields: [role_id], references: [role_id])
+  role       role @relation(fields: [role_id], references: [role_id])
   center_id  String @db.Uuid
-  center     EnglishCenter? @relation(fields: [center_id], references: [center_id])
-  testResults TestResult[]
-  testHistories TestHistory[]
-  courseEnrollments CourseEnrollment[]
-  permissions  Permission[]
-  systemLogs    SystemLog[]
-  notifications Notification[]
-  reviews       TestAndCenterReview[]
-  evaluations   StudentEvaluations[]
+  center     english_center? @relation(fields: [center_id], references: [center_id])
+  test_results test_result[]
+  test_histories test_history[]
+  course_enrollments course_enrollment[]
+  permissions  permission[]
+  system_logs    system_log[]
+  notifications notification[]
+  reviews       test_and_center_review[]
+  evaluations   student_evaluations[]
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now()) @updatedAt
 }
 
 // Test table
-model Test {
+model test {
   test_id       String @id @default(uuid()) @db.Uuid
   test_name     String @db.VarChar(255)
-  test_quarter  TestQuarter
+  test_quarter  test_quarter
   test_date     DateTime
   duration      Int
   center_id     String @db.Uuid
-  center        EnglishCenter @relation(fields: [center_id], references: [center_id])
-  test_sections TestSection[]
-  testResults   TestResult[]
-  testHistories TestHistory[]
-  courseTests   CourseTest[]
+  center        english_center @relation(fields: [center_id], references: [center_id])
+  test_sections test_section[]
+  test_results   test_result[]
+  test_histories test_history[]
+  course_tests   course_test[]
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now()) @updatedAt
-  answerSamples AnswerSample[]
-  reviews TestAndCenterReview[]
+  answer_samples answer_sample[]
+  reviews test_and_center_review[]
 }
 
 // Test Results table
-model TestResult {
+model test_result {
   result_id        String @id @default(uuid()) @db.Uuid
   user_id          String @db.Uuid
   test_id          String @db.Uuid
@@ -125,14 +125,14 @@ model TestResult {
   overall_score    Decimal @db.Decimal(3, 1)
   feedback         String?
   created_at       DateTime @default(now())
-  user             User @relation(fields: [user_id], references: [user_id])
-  test             Test @relation(fields: [test_id], references: [test_id])
-  studentEvaluations StudentEvaluations[]
-  aiRecommendations AIRecommendation[]
+  user             user @relation(fields: [user_id], references: [user_id])
+  test             test @relation(fields: [test_id], references: [test_id])
+  student_evaluations student_evaluations[]
+  ai_recommendations ai_recommendation[]
 }
 
 // Test History table
-model TestHistory {
+model test_history {
   history_id   String @id @default(uuid()) @db.Uuid
   user_id      String @db.Uuid
   test_id      String @db.Uuid
@@ -140,95 +140,95 @@ model TestHistory {
   test_status  String
   total_score  Decimal? @db.Decimal(3, 1)
   created_at   DateTime @default(now())
-  user         User @relation(fields: [user_id], references: [user_id])
-  test         Test @relation(fields: [test_id], references: [test_id])
+  user         user @relation(fields: [user_id], references: [user_id])
+  test         test @relation(fields: [test_id], references: [test_id])
 }
 
 // Course table
-model Course {
+model course {
   course_id    String @id @default(uuid()) @db.Uuid
   course_name  String @db.VarChar(255)
   description  String?
   duration     Int
   center_id    String @db.Uuid
-  center       EnglishCenter @relation(fields: [center_id], references: [center_id])
-  courseEnrollments CourseEnrollment[]
-  courseTests   CourseTest[]
+  center       english_center @relation(fields: [center_id], references: [center_id])
+  course_enrollments course_enrollment[]
+  course_tests   course_test[]
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now()) @updatedAt
 }
 
 // Course Test table
-model CourseTest {
+model course_test {
   course_test_id String @id @default(uuid()) @db.Uuid
   course_id      String @db.Uuid
   test_id        String @db.Uuid
   created_at     DateTime @default(now())
-  course         Course @relation(fields: [course_id], references: [course_id])
-  test           Test @relation(fields: [test_id], references: [test_id])
+  course         course @relation(fields: [course_id], references: [course_id])
+  test           test @relation(fields: [test_id], references: [test_id])
 }
 
 // Course Enrollment table
-model CourseEnrollment {
+model course_enrollment {
   enrollment_id String @id @default(uuid()) @db.Uuid
   user_id       String @db.Uuid
   course_id     String @db.Uuid
   enrollment_date DateTime @default(now())
   status        String
-  user          User @relation(fields: [user_id], references: [user_id])
-  course        Course @relation(fields: [course_id], references: [course_id])
+  user          user @relation(fields: [user_id], references: [user_id])
+  course        course @relation(fields: [course_id], references: [course_id])
 }
 
 // Permission table
-model Permission {
+model permission {
   permission_id String @id @default(uuid()) @db.Uuid
   role_id       String @db.Uuid
   permission_type String
   resource_type String
   created_at    DateTime @default(now())
-  role          Role @relation(fields: [role_id], references: [role_id])
-  users         User[] // Thêm trường đối ứng
+  role          role @relation(fields: [role_id], references: [role_id])
+  users         user[] // Thêm trường đối ứng
 }
 
 // System Log table
-model SystemLog {
+model system_log {
   log_id    String @id @default(uuid()) @db.Uuid
   action    String @db.VarChar(255)
   user_id   String @db.Uuid
   created_at DateTime @default(now())
-  user      User @relation(fields: [user_id], references: [user_id])
+  user      user @relation(fields: [user_id], references: [user_id])
 }
 
 // AI Recommendations table
-model AIRecommendation {
+model ai_recommendation {
   recommendation_id String @id @default(uuid()) @db.Uuid
   result_id         String @db.Uuid
   recommended_changes String
   created_at        DateTime @default(now())
-  testResult        TestResult @relation(fields: [result_id], references: [result_id])
+  test_result        test_result @relation(fields: [result_id], references: [result_id])
 }
 
 // Answer Samples table
-model AnswerSample {
+model answer_sample {
   sample_id      String @id @default(uuid()) @db.Uuid
   test_id        String @db.Uuid
   sample_answer  String?
   created_at     DateTime @default(now())
-  test           Test @relation(fields: [test_id], references: [test_id])
+  test           test @relation(fields: [test_id], references: [test_id])
 }
 
 // Report table
-model Report {
+model report {
   report_id   String @id @default(uuid()) @db.Uuid
   center_id   String @db.Uuid
   report_type String
   content     String?
   generated_at DateTime @default(now())
-  center      EnglishCenter @relation(fields: [center_id], references: [center_id])
+  center      english_center @relation(fields: [center_id], references: [center_id])
 }
 
 // Mock Exam table
-model MockExam {
+model mock_exam {
   mock_exam_id   String @id @default(uuid()) @db.Uuid
   mock_exam_name String @db.VarChar(255)
   description    String?
@@ -237,11 +237,11 @@ model MockExam {
   mock_exam_date DateTime
   created_at     DateTime @default(now())
   updated_at     DateTime @default(now()) @updatedAt
-  center         EnglishCenter @relation(fields: [center_id], references: [center_id])
+  center         english_center @relation(fields: [center_id], references: [center_id])
 }
 
 // Test And Center Reviews table
-model TestAndCenterReview {
+model test_and_center_review {
   review_id     String @id @default(uuid()) @db.Uuid
   user_id       String @db.Uuid
   test_id       String @db.Uuid
@@ -249,7 +249,7 @@ model TestAndCenterReview {
   rating        Decimal @db.Decimal(3, 1)
   review_comments String?
   created_at    DateTime @default(now())
-  user          User @relation(fields: [user_id], references: [user_id])
-  test          Test @relation(fields: [test_id], references: [test_id])
-  center        EnglishCenter @relation(fields: [center_id], references: [center_id])
+  user          user @relation(fields: [user_id], references: [user_id])
+  test          test @relation(fields: [test_id], references: [test_id])
+  center        english_center @relation(fields: [center_id], references: [center_id])
 }
