@@ -1,34 +1,57 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { RoleService } from './role.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ResponseMessage } from 'src/core/customize';
+import {
+  ROLE_CREATE_SUCCESS,
+  ROLE_DELETE_SUCCESS,
+  ROLE_LOAD_SUCCESS,
+  ROLE_UPDATE_SUCCESS,
+} from 'src/utils/message';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { Role } from './entities/role.entity';
+import { RoleService } from './role.service';
 
+@ApiTags('Role')
 @Controller('role')
 export class RoleController {
-  constructor(private readonly roleService: RoleService) {}
+  constructor(private readonly rolesService: RoleService) {}
 
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
-    return this.roleService.create(createRoleDto);
+  @ResponseMessage(ROLE_CREATE_SUCCESS)
+  async create(@Body() createRoleDto: CreateRoleDto): Promise<Role> {
+    return this.rolesService.create(createRoleDto);
   }
 
   @Get()
-  findAll() {
-    return this.roleService.findAll();
+  @ResponseMessage(ROLE_LOAD_SUCCESS)
+  async findAll(): Promise<Role[]> {
+    return this.rolesService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+  @ResponseMessage(ROLE_LOAD_SUCCESS)
+  async findOne(@Param('id') role_id: string): Promise<Role> {
+    return this.rolesService.findOne(role_id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(+id, updateRoleDto);
+  @Put()
+  @ResponseMessage(ROLE_UPDATE_SUCCESS)
+  async update(@Body() updateRoleDto: UpdateRoleDto): Promise<Role> {
+    return this.rolesService.update(updateRoleDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roleService.remove(+id);
+  @ResponseMessage(ROLE_DELETE_SUCCESS)
+  async remove(@Param('id') role_id: string): Promise<void> {
+    return this.rolesService.remove(role_id);
   }
 }
