@@ -1,12 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { ElasticsearchService } from 'src/config/elasticsearch/elasticsearch.service';
+import { PrismaService } from 'src/config/prisma/prisma.service';
+import { RedisService } from 'src/config/redis/redis.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Role } from './entities/role.entity';
 
 @Injectable()
 export class RoleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisService: RedisService,
+    private readonly elasticsearchService: ElasticsearchService,
+  ) {}
 
   /**
    * Create a new role
@@ -24,6 +30,14 @@ export class RoleService {
         permissions: true,
       },
     });
+
+    await this.redisService.setData(
+      `role:${role.role_id}`,
+      JSON.stringify(role),
+    );
+
+    await this.elasticsearchService.index('roles', role.role_id, role);
+
     return role;
   }
 
@@ -32,15 +46,25 @@ export class RoleService {
    * @returns An array of roles
    */
   async findAll(): Promise<Role[]> {
-    return this.prisma.role.findMany({
+    const cachedRoles = await this.redisService.getData('roles');
+    if (cachedRoles) {
+      return JSON.parse(cachedRoles);
+    }
+
+    const roles = await this.prisma.role.findMany({
       orderBy: {
-        role_id: 'asc', // Corrected from "ASC" to "asc"
+        role_id: 'asc',
       },
       include: {
         users: true,
         permissions: true,
       },
     });
+
+    // Cache the roles in Redis for future use
+    await this.redisService.setData('roles', JSON.stringify(roles));
+
+    return roles;
   }
 
   /**
@@ -50,6 +74,11 @@ export class RoleService {
    * @throws NotFoundException if the role is not found
    */
   async findOne(role_id: string): Promise<Role> {
+    const cachedRole = await this.redisService.getData(`role:${role_id}`);
+    if (cachedRole) {
+      return JSON.parse(cachedRole);
+    }
+
     const role = await this.prisma.role.findUnique({
       where: { role_id },
       include: {
@@ -57,17 +86,20 @@ export class RoleService {
         permissions: true,
       },
     });
+
     if (!role) {
       throw new NotFoundException(`Role with ID ${role_id} not found`);
     }
 
-    // Nếu chưa có dữ liệu, trả về mảng rỗng
-    return {
-      ...role,
-      users: role.users || [],
-      permissions: role.permissions || [],
-    };
+    // Cache the role in Redis
+    await this.redisService.setData(
+      `role:${role.role_id}`,
+      JSON.stringify(role),
+    );
+
+    return role;
   }
+
   /**
    * Update a role by its ID
    * @param role_id - The ID of the role to update
@@ -75,8 +107,6 @@ export class RoleService {
    * @returns The updated role
    * @throws NotFoundException if the role is not found
    */
-  // role.service.ts
-
   async update(updateRoleDto: UpdateRoleDto): Promise<Role> {
     const { role_id, role_name } = updateRoleDto;
 
@@ -84,10 +114,17 @@ export class RoleService {
       where: { role_id },
       data: { role_name },
       include: {
-        users: true, // Bao gồm thông tin về users
-        permissions: true, // Bao gồm thông tin về permissions
+        users: true,
+        permissions: true,
       },
     });
+
+    // Update the role in the Redis cache
+    await this.redisService.setData(`role:${role_id}`, JSON.stringify(role));
+
+    // Update the role in Elasticsearch
+    await this.elasticsearchService.index('roles', role.role_id, role);
+
     return role;
   }
 
@@ -104,31 +141,43 @@ export class RoleService {
         permissions: true,
       },
     });
+
     if (!role) {
       throw new NotFoundException(`Role with ID ${role_id} not found`);
     }
+
+    // Remove the role from Redis cache
+    await this.redisService.removeData(`role:${role_id}`);
+
+    // Remove the role from Elasticsearch
+    await this.elasticsearchService.delete('roles', role_id);
+
     await this.prisma.role.delete({
       where: { role_id },
     });
   }
 
   /**
-   * Find a role by its name
+   * Find a role by its name using Elasticsearch
    * @param role_name - The name of the role to find
    * @returns The found role
    * @throws NotFoundException if the role is not found
    */
   async findByName(role_name: string): Promise<Role> {
-    const role = await this.prisma.role.findUnique({
-      where: { role_name },
-      include: {
-        users: true,
-        permissions: true,
+    const result = await this.elasticsearchService.search('roles', {
+      query: {
+        match: { role_name },
       },
     });
-    if (!role) {
+
+    if (
+      (typeof result.hits.total === 'object'
+        ? result.hits.total.value
+        : result.hits.total) === 0
+    ) {
       throw new NotFoundException(`Role with name ${role_name} not found`);
     }
-    return role;
+
+    return result.hits.hits[0]._source as Role;
   }
 }
