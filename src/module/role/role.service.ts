@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ElasticsearchService } from 'src/config/elasticsearch/elasticsearch.service';
 import { PrismaService } from 'src/config/prisma/prisma.service';
 import { RedisService } from 'src/config/redis/redis.service';
@@ -21,6 +26,19 @@ export class RoleService {
    */
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
     const { role_name } = createRoleDto;
+
+    // Kiểm tra xem role đã tồn tại hay chưa
+    const existingRole = await this.prisma.role.findUnique({
+      where: { role_name },
+    });
+
+    if (existingRole) {
+      throw new HttpException(
+        `Role with name ${role_name} already exists`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const role = await this.prisma.role.create({
       data: {
         role_name,
@@ -31,12 +49,17 @@ export class RoleService {
       },
     });
 
-    await this.redisService.setData(
-      `role:${role.role_id}`,
-      JSON.stringify(role),
-    );
+    const allRoles = await this.prisma.role.findMany({
+      orderBy: {
+        role_id: 'asc',
+      },
+      include: {
+        users: true,
+        permissions: true,
+      },
+    });
 
-    await this.elasticsearchService.index('roles', role.role_id, role);
+    await this.redisService.setData('roles', JSON.stringify(allRoles));
 
     return role;
   }
@@ -122,9 +145,6 @@ export class RoleService {
     // Update the role in the Redis cache
     await this.redisService.setData(`role:${role_id}`, JSON.stringify(role));
 
-    // Update the role in Elasticsearch
-    await this.elasticsearchService.index('roles', role.role_id, role);
-
     return role;
   }
 
@@ -148,9 +168,6 @@ export class RoleService {
 
     // Remove the role from Redis cache
     await this.redisService.removeData(`role:${role_id}`);
-
-    // Remove the role from Elasticsearch
-    await this.elasticsearchService.delete('roles', role_id);
 
     await this.prisma.role.delete({
       where: { role_id },

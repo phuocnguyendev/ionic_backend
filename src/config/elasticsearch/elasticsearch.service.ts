@@ -1,37 +1,81 @@
-// src/database/elasticsearch/elasticsearch.service.ts
 import { Client } from '@elastic/elasticsearch';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ElasticsearchService {
+  private readonly logger = new Logger(ElasticsearchService.name);
   private client: Client;
 
-  constructor(private readonly configService: ConfigService) {
-    this.client = new Client({
-      node: this.configService.get<string>('ELASTICSEARCH_URL'),
-    });
+  constructor(private configService: ConfigService) {
+    const elasticsearchUrl =
+      this.configService.get<string>('ELASTICSEARCH_URL');
+
+    try {
+      this.client = new Client({
+        node: elasticsearchUrl,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      this.logger.log(
+        `Successfully connected to Elasticsearch at ${elasticsearchUrl}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error initializing Elasticsearch client at ${elasticsearchUrl}`,
+        error,
+      );
+    }
   }
 
   async index(index: string, id: string, data: any) {
-    return this.client.index({
-      index,
-      id,
-      body: data,
-    });
+    if (!this.client) {
+      throw new Error('Elasticsearch client is not initialized');
+    }
+
+    try {
+      return await this.client.index({
+        index,
+        id,
+        body: data,
+      });
+    } catch (error) {
+      this.logger.error('Error indexing document in Elasticsearch', error);
+      throw error;
+    }
   }
 
   async search(index: string, query: any) {
-    return this.client.search({
-      index,
-      body: query,
-    });
+    if (!this.client) {
+      throw new Error('Elasticsearch client is not initialized');
+    }
+
+    try {
+      return await this.client.search({
+        index,
+        body: query,
+      });
+    } catch (error) {
+      this.logger.error('Error searching documents in Elasticsearch', error);
+      throw error;
+    }
   }
 
   async delete(index: string, id: string) {
-    return this.client.delete({
-      index,
-      id,
-    });
+    if (!this.client) {
+      throw new Error('Elasticsearch client is not initialized');
+    }
+
+    try {
+      return await this.client.delete({
+        index,
+        id,
+      });
+    } catch (error) {
+      this.logger.error('Error deleting document in Elasticsearch', error);
+      throw error;
+    }
   }
 }

@@ -52,4 +52,21 @@ export class RedisService {
     // Directly call del on the redisClient
     await this.redisClient.del(key);
   }
+  /**
+   * Checks if a key exists in Redis.
+   * @param key - The key to check in Redis
+   * @returns True if the key exists, false otherwise
+   */
+  async flushAllData() {
+    await this.redisClient.flushall();
+  }
+
+  /**
+   * Checks if a key exists in Redis.
+   * @param key - The key to check in Redis
+   * @returns True if the key exists, false otherwise
+   */
+  async flushDbData() {
+    await this.redisClient.flushdb();
+  }
 }
