@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "user" ALTER COLUMN "avatarURL" SET DATA TYPE TEXT;

@@ -79,7 +79,7 @@ model user {
   email      String @unique @db.VarChar(100)
   role_id    String @db.Uuid
   role       role @relation(fields: [role_id], references: [role_id])
-  center_id  String @db.Uuid
+  center_id  String? @db.Uuid
   center     english_center? @relation(fields: [center_id], references: [center_id])
   test_results test_result[]
   test_histories test_history[]
@@ -91,6 +91,7 @@ model user {
   evaluations   student_evaluations[]
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now()) @updatedAt
+  avatarURL String? @db.Text
 }
 
 // Test table
