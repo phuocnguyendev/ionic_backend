@@ -17,8 +17,8 @@ import {
 } from 'src/utils/message';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { Role } from './entities/role.entity';
 import { RoleService } from './role.service';
+import { IRole } from './interface/IRole';
 
 @ApiTags('Role')
 @Controller('role')
@@ -27,25 +27,25 @@ export class RoleController {
 
   @Post()
   @ResponseMessage(ROLE_CREATE_SUCCESS)
-  async create(@Body() createRoleDto: CreateRoleDto): Promise<Role> {
+  async create(@Body() createRoleDto: CreateRoleDto): Promise<IRole> {
     return this.rolesService.create(createRoleDto);
   }
 
   @Get()
   @ResponseMessage(ROLE_LOAD_SUCCESS)
-  async findAll(): Promise<Role[]> {
+  async findAll(): Promise<IRole[]> {
     return this.rolesService.findAll();
   }
 
   @Get(':id')
   @ResponseMessage(ROLE_LOAD_SUCCESS)
-  async findOne(@Param('id') role_id: string): Promise<Role> {
+  async findOne(@Param('id') role_id: string): Promise<IRole> {
     return this.rolesService.findOne(role_id);
   }
 
   @Put()
   @ResponseMessage(ROLE_UPDATE_SUCCESS)
-  async update(@Body() updateRoleDto: UpdateRoleDto): Promise<Role> {
+  async update(@Body() updateRoleDto: UpdateRoleDto): Promise<IRole> {
     return this.rolesService.update(updateRoleDto);
   }
 
