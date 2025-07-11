@@ -14,11 +14,11 @@ import {
   ROLE_DELETE_SUCCESS,
   ROLE_LOAD_SUCCESS,
   ROLE_UPDATE_SUCCESS,
-} from 'src/utils/message';
+} from 'src/constants/message.constant';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { RoleService } from './role.service';
-import { IRole } from './interface/IRole';
+import { IRole } from '../../interfaces/IRole';
 
 @ApiTags('Role')
 @Controller('role')

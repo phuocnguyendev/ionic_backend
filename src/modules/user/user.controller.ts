@@ -13,7 +13,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiQuery } from '@nestjs/swagger';
 import { ResponseMessage } from 'src/core/customize';
-import { CREATE_USER, DELETE_USER, GET_USER_DETAIL, GET_USERS, UPDATE_USER } from 'src/utils/message';
+import {
+  CREATE_USER,
+  DELETE_USER,
+  GET_USER_DETAIL,
+  GET_USERS,
+  UPDATE_USER,
+} from 'src/constants/message.constant';
 
 @Controller('user')
 export class UserController {

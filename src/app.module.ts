@@ -6,8 +6,9 @@ import { ElasticsearchModule } from './config/elasticsearch/elasticsearch.module
 import { PrismaModule } from './config/prisma/prisma.module';
 import { PrismaService } from './config/prisma/prisma.service';
 import { RedisModule } from './config/redis/redis.module';
-import { RoleModule } from './module/role/role.module';
-import { UserModule } from './module/user/user.module';
+import { RoleModule } from './modules/role/role.module';
+import { UserModule } from './modules/user/user.module';
+import { CacheModule } from './common/cache/cache.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserModule } from './module/user/user.module';
     ConfigModule,
     RedisModule,
     ElasticsearchModule,
+    CacheModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
