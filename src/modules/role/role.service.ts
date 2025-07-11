@@ -9,7 +9,7 @@ import { PrismaService } from 'src/config/prisma/prisma.service';
 import { RedisService } from 'src/config/redis/redis.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { IRole } from './interface/IRole';
+import { IRole } from '../../interfaces/IRole';
 
 @Injectable()
 export class RoleService {
