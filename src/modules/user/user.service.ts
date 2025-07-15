@@ -1,22 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
+import { IUser } from 'src/interfaces/IUser';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UniqueUserValidator } from './unique-user.validator';
 import { UserRepository } from './user.repository';
-import { CacheService } from 'src/common/cache/cache.service';
-import { IUserResponse } from './dto/response.dto';
-import * as bcrypt from 'bcryptjs';
-import { IUser } from 'src/interfaces/IUser';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly cacheService: CacheService,
+    private readonly uniqueValidator: UniqueUserValidator,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    await this.checkUnique('email', createUserDto.email);
-    await this.checkUnique('username', createUserDto.username);
+    await this.uniqueValidator.validate('email', createUserDto.email);
+    await this.uniqueValidator.validate('username', createUserDto.username);
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
@@ -24,44 +24,38 @@ export class UserService {
       data: { ...createUserDto, password: hashedPassword },
     });
 
-    await this.cacheService.set(`user:${user.user_id}`, user);
-    return this.toUserResponse(user);
+    return this.uniqueValidator.toUserResponse(user);
   }
 
-  async update(user_id: string, data: UpdateUserDto) {
-    const user = await this.ensureUserExists(user_id);
+  async update(id: string, data: UpdateUserDto) {
+    const user = await this.uniqueValidator.ensureUserExists(id);
 
     if (data.email && data.email !== user.email)
-      await this.checkUnique('email', data.email, user_id);
+      await this.uniqueValidator.validate('email', data.email, id);
     if (data.username && data.username !== user.username)
-      await this.checkUnique('username', data.username, user_id);
+      await this.uniqueValidator.validate('username', data.username, id);
 
     const updatedUser = await this.userRepository.update({
-      where: { user_id },
+      where: { id },
       data,
     });
 
-    await this.cacheService.set(`user:${user_id}`, updatedUser);
-    return this.toUserResponse(updatedUser);
+    return this.uniqueValidator.toUserResponse(updatedUser);
   }
 
-  async findOne(user_id: string) {
-    const cacheKey = `user:${user_id}`;
-    const cachedUser = await this.cacheService.get(cacheKey);
-    if (cachedUser) return this.toUserResponse(cachedUser);
-
-    const user = await this.userRepository.findUnique({ where: { user_id } });
+  async findOne(id: string) {
+    const user = await this.userRepository.findUnique({
+      where: { user_id: id },
+    });
     if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-
-    await this.cacheService.set(cacheKey, user);
-    return this.toUserResponse(user);
+    return this.uniqueValidator.toUserResponse(user);
   }
 
   async findAll(
     page = 1,
     pageSize = 30,
     searchText = '',
-  ): Promise<IUserResponse> {
+  ): Promise<BaseResponse<IUser>> {
     const skip = (page - 1) * pageSize;
     const where = searchText
       ? { username: { contains: searchText, mode: 'insensitive' } }
@@ -83,47 +77,27 @@ export class UserService {
       this.userRepository.count({ where }),
     ]);
 
-    return { ListModel: data, Count: count };
+    return new BaseResponse<IUser>(data, count);
   }
 
-  async remove(user_id: string) {
-    await this.ensureUserExists(user_id);
+  async remove(id: string) {
+    await this.uniqueValidator.ensureUserExists(id);
 
     const deletedUser = await this.userRepository.delete({
-      where: { user_id },
+      where: { id },
     });
-    await this.cacheService.remove(`user:${user_id}`);
-    return this.toUserResponse(deletedUser);
+
+    return this.uniqueValidator.toUserResponse(deletedUser);
   }
-
-  // ================= PRIVATE ====================
-
-  private async checkUnique(
-    field: 'email' | 'username',
-    value: string,
-    excludeUserId?: string,
-  ) {
-    if (!value) return;
-    let user: IUser | null = null;
-    if (field === 'email') user = await this.userRepository.findByEmail(value);
-    if (field === 'username')
-      user = await this.userRepository.findByUsername(value);
-    if (user && user.user_id !== excludeUserId) {
-      throw new HttpException(
-        `${field === 'email' ? 'Email' : 'Username'} ${value} đã tồn tại`,
-        HttpStatus.CONFLICT,
-      );
+  async findUserToLogin(email: string): Promise<IUser | null> {
+    const user = await this.userRepository.findUnique({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) {
+      return null;
     }
-  }
-
-  private async ensureUserExists(user_id: string) {
-    const user = await this.userRepository.findUnique({ where: { user_id } });
-    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     return user;
-  }
-
-  private toUserResponse(user: any) {
-    const { password, ...safe } = user;
-    return safe;
   }
 }

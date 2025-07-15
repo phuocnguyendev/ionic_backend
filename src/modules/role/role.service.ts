@@ -6,16 +6,14 @@ import {
 } from '@nestjs/common';
 import { ElasticsearchService } from 'src/config/elasticsearch/elasticsearch.service';
 import { PrismaService } from 'src/config/prisma/prisma.service';
-import { RedisService } from 'src/config/redis/redis.service';
+import { IRole } from '../../interfaces/IRole';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { IRole } from '../../interfaces/IRole';
 
 @Injectable()
 export class RoleService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly redisService: RedisService,
     private readonly elasticsearchService: ElasticsearchService,
   ) {}
 
@@ -41,20 +39,10 @@ export class RoleService {
       },
     });
 
-    await this.redisService.setData(
-      `role:${role.role_id}`,
-      JSON.stringify(role),
-    );
     return role;
   }
 
   async findAll(): Promise<IRole[]> {
-    await this.redisService.flushDbData();
-    const cachedRoles = await this.redisService.getData('role');
-    if (cachedRoles) {
-      return JSON.parse(cachedRoles);
-    }
-
     const roles = await this.prisma.role.findMany({
       orderBy: {
         role_id: 'asc',
@@ -65,17 +53,10 @@ export class RoleService {
       },
     });
 
-    await this.redisService.setData('roles', JSON.stringify(roles));
-
     return roles;
   }
 
   async findOne(role_id: string): Promise<IRole> {
-    const cachedRole = await this.redisService.getData(`role:${role_id}`);
-    if (cachedRole) {
-      return JSON.parse(cachedRole);
-    }
-
     const role = await this.prisma.role.findUnique({
       where: { role_id },
       include: {
@@ -87,11 +68,6 @@ export class RoleService {
     if (!role) {
       throw new NotFoundException(`Role with ID ${role_id} not found`);
     }
-
-    await this.redisService.setData(
-      `role:${role.role_id}`,
-      JSON.stringify(role),
-    );
 
     return role;
   }
@@ -108,8 +84,6 @@ export class RoleService {
       },
     });
 
-    await this.redisService.setData(`role:${role_id}`, JSON.stringify(role));
-
     return role;
   }
 
@@ -125,8 +99,6 @@ export class RoleService {
     if (!role) {
       throw new NotFoundException(`Role with ID ${role_id} not found`);
     }
-
-    await this.redisService.removeData(`role:${role_id}`);
 
     await this.prisma.role.delete({
       where: { role_id },
