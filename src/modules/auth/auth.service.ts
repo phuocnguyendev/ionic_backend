@@ -3,22 +3,20 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from 'src/config/prisma/prisma.service';
-import { IUser } from 'src/interfaces/IUser';
-import { UserService } from '../user/user.service';
 import { AuthResponseDto } from './dto/authResponse.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { AuthUser, JwtPayload } from './interfaces/auth.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
-  private createAccessToken(user: IUser): string {
-    const payload = {
+  private createAccessToken(user: AuthUser): string {
+    const payload: JwtPayload = {
       sub: user.user_id,
       role: user.role?.role_name,
       iss: 'dipstick',
@@ -30,8 +28,8 @@ export class AuthService {
     });
   }
 
-  private createRefreshToken(user: IUser): string {
-    const payload = {
+  private createRefreshToken(user: AuthUser): string {
+    const payload: JwtPayload = {
       sub: user.user_id,
       role: user.role?.role_name,
       iss: 'dipstick',
@@ -67,48 +65,102 @@ export class AuthService {
       throw new HttpException('Mật khẩu không đúng', HttpStatus.UNAUTHORIZED);
     }
 
-    const accessToken = this.createAccessToken(user);
-    const refreshToken = this.createRefreshToken(user);
+    // Convert to AuthUser type
+    const authUser: AuthUser = {
+      user_id: user.user_id,
+      email: user.email,
+      username: user.username,
+      role_id: user.role_id,
+      center_id: user.center_id,
+      role: user.role,
+    };
+
+    const accessToken = this.createAccessToken(authUser);
+    const refreshToken = this.createRefreshToken(authUser);
 
     return { accessToken, refreshToken };
   }
 
   async refresh(refreshToken: string): Promise<AuthResponseDto> {
-    const payload = this.jwtService.verify(refreshToken, {
-      secret: this.configService.get<string>('JWT_REFRESH_TOKEN_KEY'),
-    });
+    try {
+      const payload: JwtPayload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_TOKEN_KEY'),
+      });
 
-    const user = await this.prisma.user.findUnique({
-      where: { user_id: payload.sub },
-    });
+      const user = await this.prisma.user.findUnique({
+        where: { user_id: payload.sub },
+        include: {
+          role: {
+            select: {
+              role_id: true,
+              role_name: true,
+            },
+          },
+        },
+      });
 
-    if (!user) {
+      if (!user) {
+        throw new HttpException(
+          'Refresh token không hợp lệ',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      // Convert to AuthUser type
+      const authUser: AuthUser = {
+        user_id: user.user_id,
+        email: user.email,
+        username: user.username,
+        role_id: user.role_id,
+        center_id: user.center_id,
+        role: user.role,
+      };
+
+      return {
+        accessToken: this.createAccessToken(authUser),
+        refreshToken: this.createRefreshToken(authUser),
+      };
+    } catch (error) {
       throw new HttpException(
         'Refresh token không hợp lệ',
         HttpStatus.UNAUTHORIZED,
       );
     }
-
-    return {
-      accessToken: this.createAccessToken(user),
-      refreshToken: this.createRefreshToken(user),
-    };
   }
 
-  async validateUser(email: string, password: string): Promise<IUser | null> {
-    const user = await this.userService.findUserToLogin(email);
-    if (
-      user &&
-      user.password &&
-      (await bcrypt.compare(password, user.password))
-    ) {
+  async validateUser(email: string, password: string): Promise<AuthUser | null> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+        include: {
+          role: {
+            select: {
+              role_id: true,
+              role_name: true,
+            },
+          },
+        },
+      });
+
+      if (!user || !user.password) {
+        return null;
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return null;
+      }
+
       return {
         user_id: user.user_id,
         email: user.email,
         username: user.username,
         role_id: user.role_id,
+        center_id: user.center_id,
+        role: user.role,
       };
+    } catch (error) {
+      return null;
     }
-    return null;
   }
 }

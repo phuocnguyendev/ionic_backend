@@ -1,8 +1,8 @@
 import { BaseResponse } from 'src/common/dto/base-response.dto';
-import { IUser } from 'src/interfaces/IUser';
+import { UserResponse } from '../interfaces/user.interface';
 
-export class IUserResponse extends BaseResponse<IUser> {
-  constructor(data: IUser[], total: number) {
+export class IUserResponse extends BaseResponse<UserResponse> {
+  constructor(data: UserResponse[], total: number) {
     super(data, total);
   }
 }

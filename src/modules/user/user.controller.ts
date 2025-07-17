@@ -1,18 +1,14 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
-  Query,
+  Get,
+  Param,
+  Post,
   Put,
+  Query,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiQuery } from '@nestjs/swagger';
-import { ResponseMessage } from 'src/core/customize';
 import {
   CREATE_USER,
   DELETE_USER,
@@ -20,6 +16,10 @@ import {
   GET_USERS,
   UPDATE_USER,
 } from 'src/constants/message.constant';
+import { ResponseMessage } from 'src/core/customize';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {

@@ -1,0 +1,29 @@
+import { RoleResponse } from '../../role/interfaces/role.interface';
+
+export interface UserData {
+  user_id: string;
+  username: string;
+  password?: string;
+  email: string;
+  avatarURL?: string | null;
+  role_id: string;
+  center_id?: string | null;
+  created_at?: Date;
+  updated_at?: Date;
+}
+
+export interface UserWithRole extends UserData {
+  role?: RoleResponse;
+}
+
+export interface UserResponse extends Pick<UserData, 'user_id' | 'username' | 'email' | 'avatarURL' | 'center_id'> {}
+
+export interface UserCreateData extends Pick<UserData, 'username' | 'email' | 'role_id' | 'center_id' | 'avatarURL'> {
+  password: string;
+}
+
+export interface UserUpdateData extends Partial<Pick<UserData, 'username' | 'email' | 'avatarURL' | 'center_id'>> {}
+
+// Utility types
+export type UserPublicData = Omit<UserData, 'password'>;
+export type UserSafeResponse = Omit<UserResponse, 'password'>;
