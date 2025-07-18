@@ -8,7 +8,7 @@ import { AuthResponseDto } from './dto/authResponse.dto';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 
-@ApiTags('authentication')
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
