@@ -23,7 +23,7 @@ export class CreateUserDto {
   @ApiProperty({ description: 'The avatar URL of the user', required: false, example: 'https://example.com/avatar.png' })
   @IsOptional()
   @IsString()
-  avatarURL?: string;
+  avatar_url?: string;
 
   @ApiProperty({ description: 'The center ID', required: false, format: 'uuid' })
   @IsOptional()

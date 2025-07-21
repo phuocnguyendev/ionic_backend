@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { CourseRepository } from './course.repository';
 import { CourseValidator } from './course.validator';
 import {
@@ -24,8 +25,18 @@ export class CourseService {
     return course;
   }
 
-  async findAll(): Promise<CourseResponse[]> {
-    return this.courseRepository.findAllCourses();
+  async findAll(
+    page = 1,
+    pageSize = 30,
+    searchText = '',
+  ): Promise<BaseResponse<CourseResponse>> {
+    const [data, count] = await this.courseRepository.paginateCourses(
+      page,
+      pageSize,
+      searchText,
+    );
+
+    return new BaseResponse<CourseResponse>(data, count);
   }
 
   async findOne(course_id: string): Promise<CourseResponse> {

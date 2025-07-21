@@ -10,7 +10,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
 import { CreateTestDto } from './dto/create-test.dto';
@@ -32,17 +33,51 @@ export class TestController {
 
   @Get()
   @ResponseMessage('Lấy danh sách bài kiểm tra thành công')
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'searchText',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'center_id',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'test_quarter',
+    required: false,
+    type: String,
+    enum: ['q1', 'q2', 'q3', 'q4'],
+  })
   async findAll(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('searchText') searchText?: string,
     @Query('center_id') center_id?: string,
     @Query('test_quarter') test_quarter?: 'q1' | 'q2' | 'q3' | 'q4',
-  ): Promise<TestResponse[]> {
+  ): Promise<BaseResponse<TestResponse> | TestResponse[]> {
     if (center_id) {
       return this.testService.findByCenter(center_id);
     }
     if (test_quarter) {
       return this.testService.findByQuarter(test_quarter);
     }
-    return this.testService.findAll();
+
+    const pageNumber = page ? parseInt(page, 10) : 1;
+    const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 30;
+    const search = searchText || '';
+
+    return this.testService.findAll(pageNumber, pageSizeNumber, search);
   }
 
   @Get(':id')

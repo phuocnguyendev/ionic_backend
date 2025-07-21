@@ -6,6 +6,7 @@ export interface CourseData {
   description?: string | null;
   duration: number;
   center_id: string;
+  logo_url?: string | null;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -18,10 +19,11 @@ export interface CourseResponse
     | 'description'
     | 'duration'
     | 'center_id'
+    | 'logo_url'
     | 'created_at'
     | 'updated_at'
   > {
-  english_center?: {
+  center?: {
     center_id: string;
     center_name: string;
   };
@@ -30,12 +32,12 @@ export interface CourseResponse
 export interface CourseCreateData
   extends Pick<
     CourseData,
-    'course_name' | 'description' | 'duration' | 'center_id'
+    'course_name' | 'description' | 'duration' | 'center_id' | 'logo_url'
   > {}
 
 export interface CourseUpdateData
   extends Partial<
-    Pick<CourseData, 'course_name' | 'description' | 'duration' | 'center_id'>
+    Pick<CourseData, 'course_name' | 'description' | 'duration' | 'center_id' | 'logo_url'>
   > {}
 
 export interface CourseWithCenter extends CourseData {
