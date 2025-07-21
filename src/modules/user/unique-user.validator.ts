@@ -44,7 +44,7 @@ export class UniqueUserValidator {
       user_id: user.user_id,
       username: user.username,
       email: user.email,
-      avatarURL: user.avatarURL,
+      avatar_url: user.avatar_url || null,
       center_id: user.center_id,
     };
   }

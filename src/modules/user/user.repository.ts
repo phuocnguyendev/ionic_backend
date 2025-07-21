@@ -46,7 +46,7 @@ export class UserRepository extends BaseRepository<UserData, any> {
           user_id: true,
           username: true,
           email: true,
-          avatarURL: true,
+          avatar_url: true,
           center_id: true,
         },
       }),
@@ -63,7 +63,7 @@ export class UserRepository extends BaseRepository<UserData, any> {
         user_id: true,
         username: true,
         email: true,
-        avatarURL: true,
+        avatar_url: true,
         center_id: true,
       },
     });

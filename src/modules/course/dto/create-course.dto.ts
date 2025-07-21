@@ -36,4 +36,13 @@ export class CreateCourseDto {
   @IsString()
   @IsNotEmpty()
   center_id: string;
+
+  @ApiProperty({ 
+    description: 'Logo URL của khóa học', 
+    example: 'https://example.com/course-logo.png',
+    required: false 
+  })
+  @IsOptional()
+  @IsString()
+  logo_url?: string;
 }

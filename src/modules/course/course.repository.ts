@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma/prisma.service';
 import { BaseRepository } from 'src/repository/baseRepository';
-import {
-  CourseData,
-  CourseResponse,
-} from './interfaces/course.interface';
+import { CourseData, CourseResponse } from './interfaces/course.interface';
 
 @Injectable()
 export class CourseRepository extends BaseRepository<CourseData, any> {
@@ -19,8 +16,9 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
         course_id: true,
         course_name: true,
         description: true,
-        center_id: true,
+        center_id: false,
         duration: true,
+        logo_url: true,
         created_at: true,
         updated_at: true,
         center: {
@@ -33,9 +31,12 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
     });
   }
 
-  async findByName(course_name: string, center_id?: string): Promise<CourseData | null> {
+  async findByName(
+    course_name: string,
+    center_id?: string,
+  ): Promise<CourseData | null> {
     return this.model.findFirst({
-      where: { 
+      where: {
         course_name,
         ...(center_id && { center_id }),
       },
@@ -43,10 +44,17 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
         course_id: true,
         course_name: true,
         description: true,
-        center_id: true,
+        center_id: false,
         duration: true,
+        logo_url: true,
         created_at: true,
         updated_at: true,
+        center: {
+          select: {
+            center_id: true,
+            center_name: true,
+          },
+        },
       },
     });
   }
@@ -60,7 +68,7 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
         course_id: true,
         course_name: true,
         description: true,
-        center_id: true,
+        center_id: false,
         duration: true,
         created_at: true,
         updated_at: true,
@@ -74,6 +82,47 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
     });
   }
 
+  async paginateCourses(
+    page: number,
+    pageSize: number,
+    searchText?: string,
+  ): Promise<[CourseResponse[], number]> {
+    const skip = (page - 1) * pageSize;
+    const where = searchText
+      ? { course_name: { contains: searchText, mode: 'insensitive' } }
+      : undefined;
+
+    const [data, count] = await Promise.all([
+      this.model.findMany({
+        skip,
+        take: pageSize,
+        where,
+        orderBy: {
+          course_name: 'asc',
+        },
+        select: {
+          course_id: true,
+          course_name: true,
+          description: true,
+          center_id: false,
+          duration: true,
+          logo_url: true,
+          created_at: true,
+          updated_at: true,
+          center: {
+            select: {
+              center_id: true,
+              center_name: true,
+            },
+          },
+        },
+      }),
+      this.model.count({ where }),
+    ]);
+
+    return [data, count];
+  }
+
   async findByCenter(center_id: string): Promise<CourseResponse[]> {
     return this.model.findMany({
       where: { center_id },
@@ -84,7 +133,7 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
         course_id: true,
         course_name: true,
         description: true,
-        center_id: true,
+        center_id: false,
         duration: true,
         created_at: true,
         updated_at: true,
@@ -105,7 +154,7 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
         course_id: true,
         course_name: true,
         description: true,
-        center_id: true,
+        center_id: false,
         duration: true,
         created_at: true,
         updated_at: true,
@@ -120,7 +169,10 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
     return course;
   }
 
-  async updateCourse(course_id: string, updateData: any): Promise<CourseResponse> {
+  async updateCourse(
+    course_id: string,
+    updateData: any,
+  ): Promise<CourseResponse> {
     const course = await this.model.update({
       where: { course_id },
       data: updateData,
@@ -128,7 +180,7 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
         course_id: true,
         course_name: true,
         description: true,
-        center_id: true,
+        center_id: false,
         duration: true,
         created_at: true,
         updated_at: true,

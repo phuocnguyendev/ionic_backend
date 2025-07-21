@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 import {
   EnglishCenterCreateData,
   EnglishCenterResponse,
@@ -30,8 +31,18 @@ export class EnglishCenterService {
     return center;
   }
 
-  async findAll(): Promise<EnglishCenterResponse[]> {
-    return this.englishCenterRepository.findAllCenters();
+  async findAll(
+    page = 1,
+    pageSize = 30,
+    searchText = '',
+  ): Promise<BaseResponse<EnglishCenterResponse>> {
+    const [data, count] = await this.englishCenterRepository.paginateCenters(
+      page,
+      pageSize,
+      searchText,
+    );
+
+    return new BaseResponse<EnglishCenterResponse>(data, count);
   }
 
   async findOne(center_id: string): Promise<EnglishCenterResponse> {

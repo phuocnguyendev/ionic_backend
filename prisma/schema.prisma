@@ -38,6 +38,7 @@ model english_center {
   address     String? @db.VarChar(255)
   contact_email String? @db.VarChar(100)
   contact_phone String? @db.VarChar(20)
+  logo_url    String? @db.Text
   created_at  DateTime @default(now())
   updated_at  DateTime @default(now()) @updatedAt
   tests       test[]
@@ -81,6 +82,7 @@ model user {
   role       role @relation(fields: [role_id], references: [role_id])
   center_id  String? @db.Uuid
   center     english_center? @relation(fields: [center_id], references: [center_id])
+  avatar_url String? @db.Text
   test_results test_result[]
   test_histories test_history[]
   course_enrollments course_enrollment[]
@@ -91,7 +93,6 @@ model user {
   evaluations   student_evaluations[]
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now()) @updatedAt
-  avatarURL String? @db.Text
 }
 
 // Test table
@@ -104,6 +105,7 @@ model test {
   center_id     String @db.Uuid
   center        english_center @relation(fields: [center_id], references: [center_id])
   test_sections test_section[]
+  logo_url      String? @db.Text
   test_results   test_result[]
   test_histories test_history[]
   course_tests   course_test[]
@@ -152,6 +154,7 @@ model course {
   duration     Int
   center_id    String @db.Uuid
   center       english_center @relation(fields: [center_id], references: [center_id])
+  logo_url     String? @db.Text
   course_enrollments course_enrollment[]
   course_tests   course_test[]
   created_at    DateTime @default(now())
@@ -235,6 +238,7 @@ model mock_exam {
   center_id      String @db.Uuid
   is_active      Boolean @default(true)
   mock_exam_date DateTime
+  logo_url       String? @db.Text
   created_at     DateTime @default(now())
   updated_at     DateTime @default(now()) @updatedAt
   center         english_center @relation(fields: [center_id], references: [center_id])

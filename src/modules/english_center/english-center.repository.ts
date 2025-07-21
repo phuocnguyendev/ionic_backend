@@ -24,6 +24,7 @@ export class EnglishCenterRepository extends BaseRepository<
         address: true,
         contact_email: true,
         contact_phone: true,
+        logo_url: true,
       },
     });
   }
@@ -37,6 +38,7 @@ export class EnglishCenterRepository extends BaseRepository<
         address: true,
         contact_email: true,
         contact_phone: true,
+        logo_url: true,
       },
     });
   }
@@ -56,11 +58,45 @@ export class EnglishCenterRepository extends BaseRepository<
     });
   }
 
+  async paginateCenters(
+    page: number,
+    pageSize: number,
+    searchText?: string,
+  ): Promise<[EnglishCenterResponse[], number]> {
+    const skip = (page - 1) * pageSize;
+    const where = searchText
+      ? { center_name: { contains: searchText, mode: 'insensitive' } }
+      : undefined;
+
+    const [data, count] = await Promise.all([
+      this.model.findMany({
+        skip,
+        take: pageSize,
+        where,
+        orderBy: {
+          center_name: 'asc',
+        },
+        select: {
+          center_id: true,
+          center_name: true,
+          address: true,
+          contact_email: true,
+          contact_phone: true,
+          logo_url: true,
+        },
+      }),
+      this.model.count({ where }),
+    ]);
+
+    return [data, count];
+  }
+
   async createCenter(data: {
     center_name: string;
     address?: string | null;
     contact_email?: string | null;
     contact_phone?: string | null;
+    logo_url?: string | null;
   }): Promise<EnglishCenterData> {
     return this.model.create({
       data,
@@ -70,6 +106,7 @@ export class EnglishCenterRepository extends BaseRepository<
         address: true,
         contact_email: true,
         contact_phone: true,
+        logo_url: true,
       },
     });
   }
@@ -81,6 +118,7 @@ export class EnglishCenterRepository extends BaseRepository<
       address?: string | null;
       contact_email?: string | null;
       contact_phone?: string | null;
+      logo_url?: string | null;
     }>,
   ): Promise<EnglishCenterData> {
     return this.model.update({
@@ -92,6 +130,7 @@ export class EnglishCenterRepository extends BaseRepository<
         address: true,
         contact_email: true,
         contact_phone: true,
+        logo_url: true,
       },
     });
   }
@@ -105,6 +144,7 @@ export class EnglishCenterRepository extends BaseRepository<
         address: true,
         contact_email: true,
         contact_phone: true,
+        logo_url: true,
       },
     });
   }

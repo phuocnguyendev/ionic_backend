@@ -4,15 +4,16 @@ export interface EnglishCenterData {
   address?: string | null;
   contact_email?: string | null;
   contact_phone?: string | null;
+  logo_url?: string | null;
   created_at?: Date;
   updated_at?: Date;
 }
 
-export interface EnglishCenterResponse extends Pick<EnglishCenterData, 'center_id' | 'center_name' | 'address' | 'contact_email' | 'contact_phone'> {}
+export interface EnglishCenterResponse extends Pick<EnglishCenterData, 'center_id' | 'center_name' | 'address' | 'contact_email' | 'contact_phone' | 'logo_url'> {}
 
-export interface EnglishCenterCreateData extends Pick<EnglishCenterData, 'center_name' | 'address' | 'contact_email' | 'contact_phone'> {}
+export interface EnglishCenterCreateData extends Pick<EnglishCenterData, 'center_name' | 'address' | 'contact_email' | 'contact_phone' | 'logo_url'> {}
 
-export interface EnglishCenterUpdateData extends Partial<Pick<EnglishCenterData, 'center_name' | 'address' | 'contact_email' | 'contact_phone'>> {}
+export interface EnglishCenterUpdateData extends Partial<Pick<EnglishCenterData, 'center_name' | 'address' | 'contact_email' | 'contact_phone' | 'logo_url'>> {}
 
 // Utility types
 export type EnglishCenterField = keyof EnglishCenterData;

@@ -6,35 +6,68 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
-import { CreateEnglishCenterDto } from './dto/create-english-center.dto';
-import { UpdateEnglishCenterDto } from './dto/update-english-center.dto';
+import { CreateEnglishCenterDto } from './dto/create-english_center.dto';
 import { EnglishCenterResponse } from './dto/interfaces/english_center.interface';
+import { UpdateEnglishCenterDto } from './dto/update-english_center.dto';
 import { EnglishCenterService } from './english-center.service';
 
-@ApiTags('English Center')
+@ApiTags('english_center')
 @Controller('english-center')
 export class EnglishCenterController {
   constructor(private readonly englishCenterService: EnglishCenterService) {}
 
   @Post()
   @ResponseMessage(SUCCESS)
-  async create(@Body() createDto: CreateEnglishCenterDto): Promise<EnglishCenterResponse> {
+  async create(
+    @Body() createDto: CreateEnglishCenterDto,
+  ): Promise<EnglishCenterResponse> {
     return this.englishCenterService.create(createDto);
   }
 
   @Get()
   @ResponseMessage(SUCCESS)
-  async findAll(): Promise<EnglishCenterResponse[]> {
-    return this.englishCenterService.findAll();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'searchText',
+    required: false,
+    type: String,
+  })
+  async findAll(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('searchText') searchText?: string,
+  ): Promise<BaseResponse<EnglishCenterResponse>> {
+    const pageNumber = page ? parseInt(page, 10) : 1;
+    const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 30;
+    const search = searchText || '';
+
+    return this.englishCenterService.findAll(
+      pageNumber,
+      pageSizeNumber,
+      search,
+    );
   }
 
   @Get(':id')
   @ResponseMessage(SUCCESS)
-  async findOne(@Param('id') center_id: string): Promise<EnglishCenterResponse> {
+  async findOne(
+    @Param('id') center_id: string,
+  ): Promise<EnglishCenterResponse> {
     return this.englishCenterService.findOne(center_id);
   }
 

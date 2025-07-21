@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma/prisma.service';
 import { BaseRepository } from 'src/repository/baseRepository';
 import {
+  TestCreateData,
   TestData,
   TestResponse,
-  TestCreateData,
   TestUpdateData,
 } from './interfaces/test.interface';
 
@@ -23,7 +23,7 @@ export class TestRepository extends BaseRepository<TestData, any> {
         test_quarter: true,
         test_date: true,
         duration: true,
-        center_id: true,
+        center_id: false,
         test_sections: true,
         created_at: true,
         updated_at: true,
@@ -37,9 +37,12 @@ export class TestRepository extends BaseRepository<TestData, any> {
     });
   }
 
-  async findByName(test_name: string, center_id?: string): Promise<TestData | null> {
+  async findByName(
+    test_name: string,
+    center_id?: string,
+  ): Promise<TestData | null> {
     return this.model.findFirst({
-      where: { 
+      where: {
         test_name,
         ...(center_id && { center_id }),
       },
@@ -49,7 +52,7 @@ export class TestRepository extends BaseRepository<TestData, any> {
         test_quarter: true,
         test_date: true,
         duration: true,
-        center_id: true,
+        center_id: false,
         test_sections: true,
         created_at: true,
         updated_at: true,
@@ -68,7 +71,7 @@ export class TestRepository extends BaseRepository<TestData, any> {
         test_quarter: true,
         test_date: true,
         duration: true,
-        center_id: true,
+        center_id: false,
         test_sections: true,
         created_at: true,
         updated_at: true,
@@ -80,6 +83,48 @@ export class TestRepository extends BaseRepository<TestData, any> {
         },
       },
     });
+  }
+
+  async paginateTests(
+    page: number,
+    pageSize: number,
+    searchText?: string,
+  ): Promise<[TestResponse[], number]> {
+    const skip = (page - 1) * pageSize;
+    const where = searchText
+      ? { test_name: { contains: searchText, mode: 'insensitive' } }
+      : undefined;
+
+    const [data, count] = await Promise.all([
+      this.model.findMany({
+        skip,
+        take: pageSize,
+        where,
+        orderBy: {
+          test_date: 'desc',
+        },
+        select: {
+          test_id: true,
+          test_name: true,
+          test_quarter: true,
+          test_date: true,
+          duration: true,
+          center_id: false,
+          test_sections: true,
+          created_at: true,
+          updated_at: true,
+          center: {
+            select: {
+              center_id: true,
+              center_name: true,
+            },
+          },
+        },
+      }),
+      this.model.count({ where }),
+    ]);
+
+    return [data, count];
   }
 
   async findByCenter(center_id: string): Promise<TestResponse[]> {
@@ -94,7 +139,7 @@ export class TestRepository extends BaseRepository<TestData, any> {
         test_quarter: true,
         test_date: true,
         duration: true,
-        center_id: true,
+        center_id: false,
         test_sections: true,
         created_at: true,
         updated_at: true,
@@ -108,7 +153,9 @@ export class TestRepository extends BaseRepository<TestData, any> {
     });
   }
 
-  async findByQuarter(test_quarter: 'q1' | 'q2' | 'q3' | 'q4'): Promise<TestResponse[]> {
+  async findByQuarter(
+    test_quarter: 'q1' | 'q2' | 'q3' | 'q4',
+  ): Promise<TestResponse[]> {
     return this.model.findMany({
       where: { test_quarter },
       orderBy: {
@@ -120,7 +167,7 @@ export class TestRepository extends BaseRepository<TestData, any> {
         test_quarter: true,
         test_date: true,
         duration: true,
-        center_id: true,
+        center_id: false,
         test_sections: true,
         created_at: true,
         updated_at: true,
@@ -139,7 +186,10 @@ export class TestRepository extends BaseRepository<TestData, any> {
       data: {
         test_name: createData.test_name,
         test_quarter: createData.test_quarter,
-        test_date: createData.test_date instanceof Date ? createData.test_date : new Date(createData.test_date),
+        test_date:
+          createData.test_date instanceof Date
+            ? createData.test_date
+            : new Date(createData.test_date),
         duration: createData.duration,
         center_id: createData.center_id,
         test_sections: createData.test_sections,
@@ -150,7 +200,7 @@ export class TestRepository extends BaseRepository<TestData, any> {
         test_quarter: true,
         test_date: true,
         duration: true,
-        center_id: true,
+        center_id: false,
         test_sections: true,
         created_at: true,
         updated_at: true,
@@ -165,17 +215,25 @@ export class TestRepository extends BaseRepository<TestData, any> {
     return test;
   }
 
-  async updateTest(test_id: string, updateData: TestUpdateData): Promise<TestResponse> {
+  async updateTest(
+    test_id: string,
+    updateData: TestUpdateData,
+  ): Promise<TestResponse> {
     const updatePayload: any = {};
-    
-    if (updateData.test_name !== undefined) updatePayload.test_name = updateData.test_name;
-    if (updateData.test_quarter !== undefined) updatePayload.test_quarter = updateData.test_quarter;
-    if (updateData.duration !== undefined) updatePayload.duration = updateData.duration;
-    if (updateData.test_sections !== undefined) updatePayload.test_sections = updateData.test_sections;
+
+    if (updateData.test_name !== undefined)
+      updatePayload.test_name = updateData.test_name;
+    if (updateData.test_quarter !== undefined)
+      updatePayload.test_quarter = updateData.test_quarter;
+    if (updateData.duration !== undefined)
+      updatePayload.duration = updateData.duration;
+    if (updateData.test_sections !== undefined)
+      updatePayload.test_sections = updateData.test_sections;
     if (updateData.test_date !== undefined) {
-      updatePayload.test_date = updateData.test_date instanceof Date 
-        ? updateData.test_date 
-        : new Date(updateData.test_date);
+      updatePayload.test_date =
+        updateData.test_date instanceof Date
+          ? updateData.test_date
+          : new Date(updateData.test_date);
     }
 
     const test = await this.model.update({
@@ -187,7 +245,7 @@ export class TestRepository extends BaseRepository<TestData, any> {
         test_quarter: true,
         test_date: true,
         duration: true,
-        center_id: true,
+        center_id: false,
         test_sections: true,
         created_at: true,
         updated_at: true,

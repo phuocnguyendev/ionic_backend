@@ -44,4 +44,13 @@ export class CreateEnglishCenterDto {
   @IsString()
   @MaxLength(20)
   contact_phone?: string;
+
+  @ApiProperty({ 
+    description: 'Logo URL của trung tâm', 
+    example: 'https://example.com/logo.png',
+    required: false 
+  })
+  @IsOptional()
+  @IsString()
+  logo_url?: string;
 }

@@ -5,7 +5,7 @@ export interface UserData {
   username: string;
   password?: string;
   email: string;
-  avatarURL?: string | null;
+  avatar_url?: string | null;
   role_id: string;
   center_id?: string | null;
   created_at?: Date;
@@ -16,13 +16,13 @@ export interface UserWithRole extends UserData {
   role?: RoleResponse;
 }
 
-export interface UserResponse extends Pick<UserData, 'user_id' | 'username' | 'email' | 'avatarURL' | 'center_id'> {}
+export interface UserResponse extends Pick<UserData, 'user_id' | 'username' | 'email' | 'avatar_url' | 'center_id'> {}
 
-export interface UserCreateData extends Pick<UserData, 'username' | 'email' | 'role_id' | 'center_id' | 'avatarURL'> {
+export interface UserCreateData extends Pick<UserData, 'username' | 'email' | 'role_id' | 'center_id' | 'avatar_url'> {
   password: string;
 }
 
-export interface UserUpdateData extends Partial<Pick<UserData, 'username' | 'email' | 'avatarURL' | 'center_id'>> {}
+export interface UserUpdateData extends Partial<Pick<UserData, 'username' | 'email' | 'avatar_url' | 'center_id'>> {}
 
 // Utility types
 export type UserPublicData = Omit<UserData, 'password'>;
