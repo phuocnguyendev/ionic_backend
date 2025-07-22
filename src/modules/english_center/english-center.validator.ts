@@ -1,12 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EnglishCenterRepository } from './english-center.repository';
-import { EnglishCenterData } from './dto/interfaces/english_center.interface';
+import { EnglishCenterData } from './interfaces/english_center.interface';
 
 @Injectable()
 export class EnglishCenterValidator {
-  constructor(private readonly englishCenterRepository: EnglishCenterRepository) {}
+  constructor(
+    private readonly englishCenterRepository: EnglishCenterRepository,
+  ) {}
 
-  async validateCenterName(center_name: string, excludeId?: string): Promise<void> {
+  async validateCenterName(
+    center_name: string,
+    excludeId?: string,
+  ): Promise<void> {
     if (!center_name) return;
 
     const center = await this.englishCenterRepository.findByName(center_name);

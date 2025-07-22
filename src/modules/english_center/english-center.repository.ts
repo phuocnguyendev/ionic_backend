@@ -3,8 +3,9 @@ import { PrismaService } from 'src/config/prisma/prisma.service';
 import { BaseRepository } from 'src/repository/baseRepository';
 import {
   EnglishCenterData,
+  EnglishCenterDetailResponse,
   EnglishCenterResponse,
-} from './dto/interfaces/english_center.interface';
+} from './interfaces/english_center.interface';
 
 @Injectable()
 export class EnglishCenterRepository extends BaseRepository<
@@ -15,7 +16,9 @@ export class EnglishCenterRepository extends BaseRepository<
     super(prisma, prisma.english_center);
   }
 
-  async findById(center_id: string): Promise<EnglishCenterResponse | null> {
+  async findById(
+    center_id: string,
+  ): Promise<EnglishCenterDetailResponse | null> {
     return this.model.findUnique({
       where: { center_id },
       select: {
@@ -25,6 +28,24 @@ export class EnglishCenterRepository extends BaseRepository<
         contact_email: true,
         contact_phone: true,
         logo_url: true,
+        courses: {
+          select: {
+            course_id: true,
+            course_name: true,
+            duration: true,
+            logo_url: true,
+          },
+        },
+        tests: {
+          select: {
+            test_id: true,
+            test_name: true,
+            test_quarter: true,
+            test_date: true,
+            duration: true,
+            test_sections: true,
+          },
+        },
       },
     });
   }
@@ -42,23 +63,7 @@ export class EnglishCenterRepository extends BaseRepository<
       },
     });
   }
-
-  async findAllCenters(): Promise<EnglishCenterResponse[]> {
-    return this.model.findMany({
-      orderBy: {
-        center_name: 'asc',
-      },
-      select: {
-        center_id: true,
-        center_name: true,
-        address: true,
-        contact_email: true,
-        contact_phone: true,
-      },
-    });
-  }
-
-  async paginateCenters(
+  async findAllCenters(
     page: number,
     pageSize: number,
     searchText?: string,

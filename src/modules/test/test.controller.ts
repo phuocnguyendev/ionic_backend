@@ -19,8 +19,8 @@ import { UpdateTestDto } from './dto/update-test.dto';
 import { TestResponse } from './interfaces/test.interface';
 import { TestService } from './test.service';
 
-@ApiTags('tests')
-@Controller('tests')
+@ApiTags('Test')
+@Controller('test')
 export class TestController {
   constructor(private readonly testService: TestService) {}
 

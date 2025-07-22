@@ -265,4 +265,11 @@ export class TestRepository extends BaseRepository<TestData, any> {
       where: { test_id },
     });
   }
+
+  async hasTestResults(test_id: string): Promise<boolean> {
+    const count = await this.prisma.test_result.count({
+      where: { test_id },
+    });
+    return count > 0;
+  }
 }

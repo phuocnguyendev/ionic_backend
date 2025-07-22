@@ -1,4 +1,4 @@
-import { EnglishCenterResponse } from '../../english_center/dto/interfaces/english_center.interface';
+import { EnglishCenterResponse } from '../../english_center/interfaces/english_center.interface';
 
 export interface ReportData {
   report_id: string;
@@ -8,11 +8,17 @@ export interface ReportData {
   generated_at?: Date;
 }
 
-export interface ReportResponse extends Pick<ReportData, 'report_id' | 'center_id' | 'report_type' | 'content' | 'generated_at'> {}
+export interface ReportResponse
+  extends Pick<
+    ReportData,
+    'report_id' | 'center_id' | 'report_type' | 'content' | 'generated_at'
+  > {}
 
-export interface ReportCreateData extends Pick<ReportData, 'center_id' | 'report_type' | 'content'> {}
+export interface ReportCreateData
+  extends Pick<ReportData, 'center_id' | 'report_type' | 'content'> {}
 
-export interface ReportUpdateData extends Partial<Pick<ReportData, 'report_type' | 'content'>> {}
+export interface ReportUpdateData
+  extends Partial<Pick<ReportData, 'report_type' | 'content'>> {}
 
 export interface ReportWithCenter extends ReportData {
   center?: EnglishCenterResponse;

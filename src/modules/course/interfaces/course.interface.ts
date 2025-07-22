@@ -1,4 +1,4 @@
-import { EnglishCenterResponse } from '../../english_center/dto/interfaces/english_center.interface';
+import { EnglishCenterResponse } from '../../english_center/interfaces/english_center.interface';
 
 export interface CourseData {
   course_id: string;
@@ -23,10 +23,10 @@ export interface CourseResponse
     | 'created_at'
     | 'updated_at'
   > {
-  center?: {
-    center_id: string;
-    center_name: string;
-  };
+  center?: Pick<
+    EnglishCenterResponse,
+    'center_id' | 'center_name' | 'logo_url' | 'address'
+  >;
 }
 
 export interface CourseCreateData
@@ -37,12 +37,11 @@ export interface CourseCreateData
 
 export interface CourseUpdateData
   extends Partial<
-    Pick<CourseData, 'course_name' | 'description' | 'duration' | 'center_id' | 'logo_url'>
+    Pick<
+      CourseData,
+      'course_name' | 'description' | 'duration' | 'center_id' | 'logo_url'
+    >
   > {}
-
-export interface CourseWithCenter extends CourseData {
-  english_center?: EnglishCenterResponse;
-}
 
 // Utility types
 export type CourseField = keyof CourseData;
