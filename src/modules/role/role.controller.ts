@@ -20,7 +20,7 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 import { RoleResponse } from './interfaces/role.interface';
 import { RoleService } from './role.service';
 
-@ApiTags('roles')
+@ApiTags('Role')
 @Controller('role')
 export class RoleController {
   constructor(private readonly rolesService: RoleService) {}

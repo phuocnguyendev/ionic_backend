@@ -30,7 +30,7 @@ export class CourseService {
     pageSize = 30,
     searchText = '',
   ): Promise<BaseResponse<CourseResponse>> {
-    const [data, count] = await this.courseRepository.paginateCourses(
+    const [data, count] = await this.courseRepository.findAllCourses(
       page,
       pageSize,
       searchText,

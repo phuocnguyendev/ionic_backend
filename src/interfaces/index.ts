@@ -4,7 +4,7 @@ export * from '../modules/role/interfaces/role.interface';
 export * from '../modules/auth/interfaces/auth.interface';
 
 // Business logic interfaces
-export * from '../modules/english_center/dto/interfaces/english_center.interface';
+export * from '../modules/english_center/interfaces/english_center.interface';
 export * from '../modules/test/interfaces/test.interface';
 export * from '../modules/course/interfaces/course.interface';
 export * from '../modules/test-result/interfaces/test-result.interface';

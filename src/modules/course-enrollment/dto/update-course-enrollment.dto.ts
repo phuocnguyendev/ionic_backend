@@ -1,4 +1,14 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreatecourseenrollmentDto } from './create-course-enrollment.dto';
+import { PartialType } from '@nestjs/swagger';
+import { IsOptional, IsEnum } from 'class-validator';
+import {
+  CreateCourseEnrollmentDto,
+  EnrollmentStatus,
+} from './create-course-enrollment.dto';
 
-export class UpdatecourseenrollmentDto extends PartialType(CreatecourseenrollmentDto) {}
+export class UpdateCourseEnrollmentDto extends PartialType(
+  CreateCourseEnrollmentDto,
+) {
+  @IsOptional()
+  @IsEnum(EnrollmentStatus)
+  status?: EnrollmentStatus;
+}

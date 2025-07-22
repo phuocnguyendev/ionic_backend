@@ -4,7 +4,7 @@ import {
   EnglishCenterCreateData,
   EnglishCenterResponse,
   EnglishCenterUpdateData,
-} from './dto/interfaces/english_center.interface';
+} from './interfaces/english_center.interface';
 import { EnglishCenterRepository } from './english-center.repository';
 import { EnglishCenterValidator } from './english-center.validator';
 
@@ -36,7 +36,7 @@ export class EnglishCenterService {
     pageSize = 30,
     searchText = '',
   ): Promise<BaseResponse<EnglishCenterResponse>> {
-    const [data, count] = await this.englishCenterRepository.paginateCenters(
+    const [data, count] = await this.englishCenterRepository.findAllCenters(
       page,
       pageSize,
       searchText,
