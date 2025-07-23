@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
-import { testresultController } from './test-result.controller';
-import { testresultService } from './test-result.service';
+import { PrismaModule } from 'src/config/prisma/prisma.module';
+import { TestResultController } from './test-result.controller';
+import { TestResultRepository } from './test-result.repository';
+import { TestResultService } from './test-result.service';
+import { TestResultValidator } from './test-result.validator';
 
 @Module({
-  imports: [],
-  controllers: [testresultController],
-  providers: [testresultService],
-  exports: [testresultService],
+  imports: [PrismaModule],
+  controllers: [TestResultController],
+  providers: [TestResultService, TestResultRepository, TestResultValidator],
+  exports: [TestResultService, TestResultRepository],
 })
-export class testresultModule {}
+export class TestResultModule {}

@@ -3,52 +3,78 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
-import { CreatetestresultDto } from './dto/create-test-result.dto';
-import { UpdatetestresultDto } from './dto/update-test-result.dto';
-import { testresultService } from './test-result.service';
+import { CreateTestResultDto } from './dto/create-test-result.dto';
+import { UpdateTestResultDto } from './dto/update-test-result.dto';
+import { TestResultResponse } from './interfaces/test-result.interface';
+import { TestResultService } from './test-result.service';
 
-@ApiTags('testresult')
-@Controller('test-result')
-export class testresultController {
-  constructor(private readonly ltestresultService: testresultService) {}
+@ApiTags('test-results')
+@Controller('test-results')
+export class TestResultController {
+  constructor(private readonly testResultService: TestResultService) {}
 
   @Post()
-  @ResponseMessage(SUCCESS)
-  async create(@Body() createDto: CreatetestresultDto): Promise<any> {
-    return this.ltestresultService.create(createDto);
+  @ResponseMessage('Tạo kết quả test thành công')
+  @HttpCode(HttpStatus.CREATED)
+  async create(
+    @Body() createDto: CreateTestResultDto,
+  ): Promise<TestResultResponse> {
+    return this.testResultService.create(createDto);
   }
 
   @Get()
-  @ResponseMessage(SUCCESS)
-  async findAll(): Promise<any[]> {
-    return this.ltestresultService.findAll();
+  @ResponseMessage('Lấy danh sách kết quả test thành công')
+  async findAll(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('searchText') searchText?: string,
+    @Query('user_id') user_id?: string,
+    @Query('test_id') test_id?: string,
+  ): Promise<BaseResponse<TestResultResponse> | TestResultResponse[]> {
+    if (user_id) {
+      return this.testResultService.findByUser(user_id);
+    }
+    if (test_id) {
+      return this.testResultService.findByTest(test_id);
+    }
+
+    const pageNumber = page ? parseInt(page, 10) : 1;
+    const pageSizeNumber = pageSize ? parseInt(pageSize, 10) : 30;
+    const search = searchText || '';
+
+    return this.testResultService.findAll(pageNumber, pageSizeNumber, search);
   }
 
   @Get(':id')
   @ResponseMessage(SUCCESS)
-  async findOne(@Param('id') id: string): Promise<any> {
-    return this.ltestresultService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<TestResultResponse> {
+    return this.testResultService.findOne(id);
   }
 
   @Put(':id')
   @ResponseMessage(SUCCESS)
   async update(
     @Param('id') id: string,
-    @Body() updateDto: UpdatetestresultDto,
-  ): Promise<any> {
-    return this.ltestresultService.update(id, updateDto);
+    @Body() updateDto: UpdateTestResultDto,
+  ): Promise<TestResultResponse> {
+    return this.testResultService.update(id, updateDto);
   }
 
   @Delete(':id')
   @ResponseMessage(SUCCESS)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string): Promise<void> {
-    return this.ltestresultService.remove(id);
+    return this.testResultService.remove(id);
   }
 }

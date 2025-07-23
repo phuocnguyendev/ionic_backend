@@ -14,7 +14,19 @@ export interface TestResultData {
   created_at?: Date;
 }
 
-export interface TestResultResponse extends Pick<TestResultData, 'result_id' | 'user_id' | 'test_id' | 'listening_score' | 'reading_score' | 'writing_score' | 'speaking_score' | 'overall_score' | 'feedback'> {}
+export interface TestResultResponse extends Pick<TestResultData, 'result_id' | 'user_id' | 'test_id' | 'listening_score' | 'reading_score' | 'writing_score' | 'speaking_score' | 'overall_score' | 'feedback' | 'created_at'> {
+  user?: {
+    user_id: string;
+    username: string;
+    email: string;
+  };
+  test?: {
+    test_id: string;
+    test_name: string;
+    test_quarter: string;
+    test_date: Date;
+  };
+}
 
 export interface TestResultCreateData extends Pick<TestResultData, 'user_id' | 'test_id' | 'listening_score' | 'reading_score' | 'writing_score' | 'speaking_score' | 'overall_score' | 'feedback'> {}
 
