@@ -65,17 +65,6 @@ export class CreateTestResultDto {
   speaking_score: number;
 
   @ApiProperty({ 
-    description: 'Điểm tổng', 
-    example: 7.25,
-    minimum: 0,
-    maximum: 9 
-  })
-  @IsNumber({ maxDecimalPlaces: 1 })
-  @Min(0)
-  @Max(9)
-  overall_score: number;
-
-  @ApiProperty({ 
     description: 'Phản hồi và nhận xét', 
     example: 'Cần cải thiện kỹ năng writing',
     required: false 
