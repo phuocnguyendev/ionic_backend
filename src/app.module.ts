@@ -17,7 +17,7 @@ import { TestModule } from './modules/test/test.module';
 
 // TODO: Uncomment these modules after implementing them properly
 import { CourseModule } from './modules/course/course.module';
-// import { TestResultModule } from './modules/test-result/test-result.module';
+import { TestResultModule } from './modules/test-result/test-result.module';
 // import { NotificationModule } from './modules/notification/notification.module';
 // import { PermissionModule } from './modules/permission/permission.module';
 // import { MockExamModule } from './modules/mock-exam/mock-exam.module';
@@ -53,7 +53,7 @@ import { CourseEnrollmentModule } from './modules/course-enrollment/course-enrol
     // TODO: Add these modules after proper implementation
     CourseModule,
 
-    // TestResultModule,
+    TestResultModule,
     // NotificationModule,
     // PermissionModule,
     // MockExamModule,
