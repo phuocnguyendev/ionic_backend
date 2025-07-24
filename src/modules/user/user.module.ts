@@ -9,5 +9,6 @@ import { UserService } from './user.service';
   imports: [],
   controllers: [UserController],
   providers: [UserService, PrismaService, UserRepository, UniqueUserValidator],
+  exports: [UserRepository],
 })
 export class UserModule {}

@@ -5,6 +5,7 @@ import {
   TestResultData,
   TestResultResponse,
 } from './interfaces/test-result.interface';
+import { formatScoreDisplay } from './utils/score.utils';
 
 @Injectable()
 export class TestResultRepository extends BaseRepository<TestResultData, any> {
@@ -13,17 +14,24 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
   }
 
   async findById(result_id: string): Promise<TestResultResponse | null> {
-    return this.model.findUnique({
+    const result = await this.model.findUnique({
       where: { result_id },
       select: {
         result_id: true,
-        user_id: true,
-        test_id: true,
+        user_id: false,
+        test_id: false,
+        session_id: true,
         listening_score: true,
         reading_score: true,
         writing_score: true,
         speaking_score: true,
         overall_score: true,
+        listening_raw_score: true,
+        reading_raw_score: true,
+        writing_raw_score: true,
+        speaking_raw_score: true,
+        is_completed: true,
+        completion_time: true,
         feedback: true,
         created_at: true,
         user: {
@@ -43,22 +51,40 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
         },
       },
     });
+
+    if (!result) return null;
+
+    return {
+      ...result,
+      listening_score: formatScoreDisplay(result.listening_score),
+      reading_score: formatScoreDisplay(result.reading_score),
+      writing_score: formatScoreDisplay(result.writing_score),
+      speaking_score: formatScoreDisplay(result.speaking_score),
+      overall_score: formatScoreDisplay(result.overall_score),
+    };
   }
 
   async findAllTestResults(): Promise<TestResultResponse[]> {
-    return this.model.findMany({
+    const results = await this.model.findMany({
       orderBy: {
         created_at: 'desc',
       },
       select: {
         result_id: true,
-        user_id: true,
-        test_id: true,
+        user_id: false,
+        test_id: false,
+        session_id: true,
         listening_score: true,
         reading_score: true,
         writing_score: true,
         speaking_score: true,
         overall_score: true,
+        listening_raw_score: true,
+        reading_raw_score: true,
+        writing_raw_score: true,
+        speaking_raw_score: true,
+        is_completed: true,
+        completion_time: true,
         feedback: true,
         created_at: true,
         user: {
@@ -78,6 +104,15 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
         },
       },
     });
+
+    return results.map((result) => ({
+      ...result,
+      listening_score: formatScoreDisplay(result.listening_score),
+      reading_score: formatScoreDisplay(result.reading_score),
+      writing_score: formatScoreDisplay(result.writing_score),
+      speaking_score: formatScoreDisplay(result.speaking_score),
+      overall_score: formatScoreDisplay(result.overall_score),
+    }));
   }
 
   async paginateTestResults(
@@ -89,8 +124,14 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
     const where = searchText
       ? {
           OR: [
-            { user: { username: { contains: searchText, mode: 'insensitive' } } },
-            { test: { test_name: { contains: searchText, mode: 'insensitive' } } },
+            {
+              user: { username: { contains: searchText, mode: 'insensitive' } },
+            },
+            {
+              test: {
+                test_name: { contains: searchText, mode: 'insensitive' },
+              },
+            },
           ],
         }
       : undefined;
@@ -105,13 +146,20 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
         },
         select: {
           result_id: true,
-          user_id: true,
-          test_id: true,
+          user_id: false,
+          test_id: false,
+          session_id: true,
           listening_score: true,
           reading_score: true,
           writing_score: true,
           speaking_score: true,
           overall_score: true,
+          listening_raw_score: true,
+          reading_raw_score: true,
+          writing_raw_score: true,
+          speaking_raw_score: true,
+          is_completed: true,
+          completion_time: true,
           feedback: true,
           created_at: true,
           user: {
@@ -134,24 +182,40 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
       this.model.count({ where }),
     ]);
 
-    return [data, count];
+    const formattedData = data.map((result) => ({
+      ...result,
+      listening_score: formatScoreDisplay(result.listening_score),
+      reading_score: formatScoreDisplay(result.reading_score),
+      writing_score: formatScoreDisplay(result.writing_score),
+      speaking_score: formatScoreDisplay(result.speaking_score),
+      overall_score: formatScoreDisplay(result.overall_score),
+    }));
+
+    return [formattedData, count];
   }
 
   async findByUser(user_id: string): Promise<TestResultResponse[]> {
-    return this.model.findMany({
+    const results = await this.model.findMany({
       where: { user_id },
       orderBy: {
         created_at: 'desc',
       },
       select: {
         result_id: true,
-        user_id: true,
-        test_id: true,
+        user_id: false,
+        test_id: false,
+        session_id: true,
         listening_score: true,
         reading_score: true,
         writing_score: true,
         speaking_score: true,
         overall_score: true,
+        listening_raw_score: true,
+        reading_raw_score: true,
+        writing_raw_score: true,
+        speaking_raw_score: true,
+        is_completed: true,
+        completion_time: true,
         feedback: true,
         created_at: true,
         user: {
@@ -171,23 +235,39 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
         },
       },
     });
+
+    return results.map((result) => ({
+      ...result,
+      listening_score: formatScoreDisplay(result.listening_score),
+      reading_score: formatScoreDisplay(result.reading_score),
+      writing_score: formatScoreDisplay(result.writing_score),
+      speaking_score: formatScoreDisplay(result.speaking_score),
+      overall_score: formatScoreDisplay(result.overall_score),
+    }));
   }
 
   async findByTest(test_id: string): Promise<TestResultResponse[]> {
-    return this.model.findMany({
+    const results = await this.model.findMany({
       where: { test_id },
       orderBy: {
         created_at: 'desc',
       },
       select: {
         result_id: true,
-        user_id: true,
-        test_id: true,
+        user_id: false,
+        test_id: false,
+        session_id: true,
         listening_score: true,
         reading_score: true,
         writing_score: true,
         speaking_score: true,
         overall_score: true,
+        listening_raw_score: true,
+        reading_raw_score: true,
+        writing_raw_score: true,
+        speaking_raw_score: true,
+        is_completed: true,
+        completion_time: true,
         feedback: true,
         created_at: true,
         user: {
@@ -207,6 +287,15 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
         },
       },
     });
+
+    return results.map((result) => ({
+      ...result,
+      listening_score: formatScoreDisplay(result.listening_score),
+      reading_score: formatScoreDisplay(result.reading_score),
+      writing_score: formatScoreDisplay(result.writing_score),
+      speaking_score: formatScoreDisplay(result.speaking_score),
+      overall_score: formatScoreDisplay(result.overall_score),
+    }));
   }
 
   async createTestResult(createData: any): Promise<TestResultResponse> {
@@ -214,13 +303,19 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
       data: createData,
       select: {
         result_id: true,
-        user_id: true,
-        test_id: true,
+        user_id: false,
+        test_id: false,
+        session_id: true,
         listening_score: true,
         reading_score: true,
         writing_score: true,
         speaking_score: true,
-        overall_score: true,
+        listening_raw_score: true,
+        reading_raw_score: true,
+        writing_raw_score: true,
+        speaking_raw_score: true,
+        is_completed: true,
+        completion_time: true,
         feedback: true,
         created_at: true,
         user: {
@@ -240,22 +335,40 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
         },
       },
     });
-    return result;
+
+    return {
+      ...result,
+      overall_score: createData.overall_score,
+      listening_score: formatScoreDisplay(result.listening_score),
+      reading_score: formatScoreDisplay(result.reading_score),
+      writing_score: formatScoreDisplay(result.writing_score),
+      speaking_score: formatScoreDisplay(result.speaking_score),
+    };
   }
 
-  async updateTestResult(result_id: string, updateData: any): Promise<TestResultResponse> {
+  async updateTestResult(
+    result_id: string,
+    updateData: any,
+  ): Promise<TestResultResponse> {
     const result = await this.model.update({
       where: { result_id },
       data: updateData,
       select: {
         result_id: true,
-        user_id: true,
-        test_id: true,
+        user_id: false,
+        test_id: false,
+        session_id: true,
         listening_score: true,
         reading_score: true,
         writing_score: true,
         speaking_score: true,
         overall_score: true,
+        listening_raw_score: true,
+        reading_raw_score: true,
+        writing_raw_score: true,
+        speaking_raw_score: true,
+        is_completed: true,
+        completion_time: true,
         feedback: true,
         created_at: true,
         user: {
@@ -275,7 +388,15 @@ export class TestResultRepository extends BaseRepository<TestResultData, any> {
         },
       },
     });
-    return result;
+
+    return {
+      ...result,
+      listening_score: formatScoreDisplay(result.listening_score),
+      reading_score: formatScoreDisplay(result.reading_score),
+      writing_score: formatScoreDisplay(result.writing_score),
+      speaking_score: formatScoreDisplay(result.speaking_score),
+      overall_score: formatScoreDisplay(result.overall_score),
+    };
   }
 
   async deleteTestResult(result_id: string): Promise<void> {

@@ -9,13 +9,15 @@ import {
   Query,
   Request,
 } from '@nestjs/common';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
+import { CourseEnrollmentResponse } from 'src/interfaces';
 import { CourseEnrollmentService } from './course-enrollment.service';
 import { CreateCourseEnrollmentDto } from './dto/create-course-enrollment.dto';
-import { UpdateCourseEnrollmentDto } from './dto/update-course-enrollment.dto';
 import { JoinCourseDto } from './dto/join-course.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { UpdateCourseEnrollmentDto } from './dto/update-course-enrollment.dto';
 
 @ApiTags('Course-enrollment')
 @Controller('course-enrollment')
@@ -52,8 +54,31 @@ export class CourseEnrollmentController {
 
   @Get()
   @ResponseMessage(SUCCESS)
-  async findAll(): Promise<any[]> {
-    return this.courseEnrollmentService.findAll();
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'searchText',
+    required: false,
+    type: String,
+  })
+  async findAll(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Query('searchText') searchText?: string,
+  ): Promise<BaseResponse<CourseEnrollmentResponse>> {
+    const pageNum = page ? parseInt(page, 10) : 1;
+    const size = pageSize ? parseInt(pageSize, 10) : 30;
+    const search = searchText || '';
+
+    return this.courseEnrollmentService.findAll(pageNum, size, search);
   }
 
   @Get('my-enrollments')
