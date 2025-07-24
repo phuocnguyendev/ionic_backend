@@ -28,9 +28,9 @@ export interface TestResultResponse extends Pick<TestResultData, 'result_id' | '
   };
 }
 
-export interface TestResultCreateData extends Pick<TestResultData, 'user_id' | 'test_id' | 'listening_score' | 'reading_score' | 'writing_score' | 'speaking_score' | 'overall_score' | 'feedback'> {}
+export interface TestResultCreateData extends Pick<TestResultData, 'user_id' | 'test_id' | 'listening_score' | 'reading_score' | 'writing_score' | 'speaking_score' | 'feedback'> {}
 
-export interface TestResultUpdateData extends Partial<Pick<TestResultData, 'listening_score' | 'reading_score' | 'writing_score' | 'speaking_score' | 'overall_score' | 'feedback'>> {}
+export interface TestResultUpdateData extends Partial<Pick<TestResultData, 'listening_score' | 'reading_score' | 'writing_score' | 'speaking_score' | 'feedback'>> {}
 
 export interface TestResultWithRelations extends TestResultData {
   user?: UserResponse;

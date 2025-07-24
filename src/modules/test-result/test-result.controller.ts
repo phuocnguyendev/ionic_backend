@@ -10,7 +10,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
@@ -19,7 +19,7 @@ import { UpdateTestResultDto } from './dto/update-test-result.dto';
 import { TestResultResponse } from './interfaces/test-result.interface';
 import { TestResultService } from './test-result.service';
 
-@ApiTags('test-results')
+@ApiTags('Test-results')
 @Controller('test-results')
 export class TestResultController {
   constructor(private readonly testResultService: TestResultService) {}
@@ -35,6 +35,31 @@ export class TestResultController {
 
   @Get()
   @ResponseMessage('Lấy danh sách kết quả test thành công')
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'searchText',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'user_id',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'test_id',
+    required: false,
+    type: String,
+  })
   async findAll(
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,

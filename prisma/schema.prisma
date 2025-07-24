@@ -23,6 +23,53 @@ enum test_quarter {
   q4
 }
 
+// Enum for test session status
+enum test_session_status {
+  not_started
+  in_progress
+  paused
+  completed
+  timeout
+  cancelled
+}
+
+// Enum for IELTS band scores (0.0 to  test            user          @relation(fields: [user_id], references: [user_id])
+}
+
+// IELTS Band Score Mapping - để convert raw score thành band score
+model ielts_band_mapping {
+  mapping_id      String @id @default(uuid()) @db.Uuid
+  test_id         String @db.Uuid
+  section         test_section
+  raw_score_min   Int    // Raw score minimum
+  raw_score_max   Int    // Raw score maximum  
+  band_score      Decimal @db.Decimal(2, 1) // Corresponding band score
+  created_at      DateTime @default(now())
+  
+  test            test @relation(fields: [test_id], references: [test_id])
+}.0 with 0.5 increments)
+enum ielts_band_score {
+  BAND_0_0
+  BAND_0_5
+  BAND_1_0
+  BAND_1_5
+  BAND_2_0
+  BAND_2_5
+  BAND_3_0
+  BAND_3_5
+  BAND_4_0
+  BAND_4_5
+  BAND_5_0
+  BAND_5_5
+  BAND_6_0
+  BAND_6_5
+  BAND_7_0
+  BAND_7_5
+  BAND_8_0
+  BAND_8_5
+  BAND_9_0
+}
+
 // Role table
 model role {
   role_id   String @id @default(uuid()) @db.Uuid
@@ -85,12 +132,14 @@ model user {
   avatar_url String? @db.Text
   test_results test_result[]
   test_histories test_history[]
+  test_sessions test_session[]
   course_enrollments course_enrollment[]
   permissions  permission[]
   system_logs    system_log[]
   notifications notification[]
   reviews       test_and_center_review[]
   evaluations   student_evaluations[]
+  user_answers  user_answer[]
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now()) @updatedAt
 }
@@ -108,11 +157,50 @@ model test {
   logo_url      String? @db.Text
   test_results   test_result[]
   test_histories test_history[]
+  test_sessions  test_session[]
   course_tests   course_test[]
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now()) @updatedAt
   answer_samples answer_sample[]
   reviews test_and_center_review[]
+  test_questions test_question[]
+  test_section_times test_section_time[]
+  band_mappings ielts_band_mapping[]
+}
+
+// Test Session table - để track session thi của từng user
+model test_session {
+  session_id       String @id @default(uuid()) @db.Uuid
+  user_id          String @db.Uuid
+  test_id          String @db.Uuid
+  status           test_session_status @default(not_started)
+  current_section  test_section?
+  start_time       DateTime?
+  end_time         DateTime?
+  pause_count      Int @default(0)
+  total_pause_time Int @default(0) // Tổng thời gian tạm dừng (seconds)
+  ip_address       String? @db.VarChar(45)
+  user_agent       String? @db.Text
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now()) @updatedAt
+  
+  user             user @relation(fields: [user_id], references: [user_id])
+  test             test @relation(fields: [test_id], references: [test_id])
+  section_attempts test_section_attempt[]
+}
+
+// Test Section Attempt - track progress từng section
+model test_section_attempt {
+  attempt_id    String @id @default(uuid()) @db.Uuid
+  session_id    String @db.Uuid
+  section       test_section
+  start_time    DateTime?
+  end_time      DateTime?
+  time_spent    Int? // Thời gian làm bài section này (seconds)
+  is_completed  Boolean @default(false)
+  created_at    DateTime @default(now())
+  
+  test_session  test_session @relation(fields: [session_id], references: [session_id])
 }
 
 // Test Results table
@@ -120,17 +208,34 @@ model test_result {
   result_id        String @id @default(uuid()) @db.Uuid
   user_id          String @db.Uuid
   test_id          String @db.Uuid
-  listening_score  Decimal @db.Decimal(3, 1)
-  reading_score    Decimal @db.Decimal(3, 1)
-  writing_score    Decimal @db.Decimal(3, 1)
-  speaking_score   Decimal @db.Decimal(3, 1)
-  overall_score    Decimal @db.Decimal(3, 1)
+  session_id       String? @db.Uuid
+  
+  // IELTS Band Scores (0.0 - 9.0 with 0.5 increments)
+  listening_score  Decimal @db.Decimal(2, 1) // 0.0 to 9.0
+  reading_score    Decimal @db.Decimal(2, 1) // 0.0 to 9.0
+  writing_score    Decimal @db.Decimal(2, 1) // 0.0 to 9.0
+  speaking_score   Decimal @db.Decimal(2, 1) // 0.0 to 9.0
+  overall_score    Decimal @db.Decimal(2, 1) // 0.0 to 9.0
+  
+  // Raw scores for calculation
+  listening_raw_score Int?
+  reading_raw_score   Int?
+  writing_raw_score   Int?
+  speaking_raw_score  Int?
+  
+  // Completion status
+  is_completed     Boolean @default(false)
+  completion_time  DateTime?
+  
   feedback         String?
   created_at       DateTime @default(now())
   user             user @relation(fields: [user_id], references: [user_id])
   test             test @relation(fields: [test_id], references: [test_id])
   student_evaluations student_evaluations[]
   ai_recommendations ai_recommendation[]
+  user_answers     user_answer[]
+  writing_assessments writing_assessment[]
+  speaking_assessments speaking_assessment[]
 }
 
 // Test History table
@@ -257,3 +362,155 @@ model test_and_center_review {
   test          test @relation(fields: [test_id], references: [test_id])
   center        english_center @relation(fields: [center_id], references: [center_id])
 }
+
+// Writing Task Assessment - IELTS Writing có Task 1 và Task 2
+model writing_assessment {
+  assessment_id     String @id @default(uuid()) @db.Uuid
+  result_id         String @db.Uuid
+  task_number       Int    // 1 hoặc 2
+  
+  // IELTS Writing Criteria Scores (0.0 - 9.0)
+  task_achievement  Decimal @db.Decimal(2, 1) // Task Achievement/Response
+  coherence_cohesion Decimal @db.Decimal(2, 1) // Coherence and Cohesion
+  lexical_resource  Decimal @db.Decimal(2, 1) // Lexical Resource
+  grammar_accuracy  Decimal @db.Decimal(2, 1) // Grammatical Range and Accuracy
+  
+  overall_task_score Decimal @db.Decimal(2, 1) // Average of 4 criteria
+  word_count        Int?
+  time_spent        Int? // seconds
+  examiner_comments String? @db.Text
+  created_at        DateTime @default(now())
+  
+  test_result       test_result @relation(fields: [result_id], references: [result_id])
+}
+
+// Speaking Assessment - IELTS Speaking có 3 parts
+model speaking_assessment {
+  assessment_id     String @id @default(uuid()) @db.Uuid
+  result_id         String @db.Uuid
+  
+  // IELTS Speaking Criteria Scores (0.0 - 9.0)
+  fluency_coherence Decimal @db.Decimal(2, 1) // Fluency and Coherence
+  lexical_resource  Decimal @db.Decimal(2, 1) // Lexical Resource
+  grammar_accuracy  Decimal @db.Decimal(2, 1) // Grammatical Range and Accuracy
+  pronunciation     Decimal @db.Decimal(2, 1) // Pronunciation
+  
+  overall_speaking_score Decimal @db.Decimal(2, 1) // Average of 4 criteria
+  total_duration    Int? // Total speaking time in seconds
+  examiner_comments String? @db.Text
+  audio_recording_url String? @db.Text
+  created_at        DateTime @default(now())
+  
+  test_result       test_result @relation(fields: [result_id], references: [result_id])
+  speaking_parts    speaking_part_attempt[]
+}
+
+// Speaking Parts - Track từng part của Speaking test
+model speaking_part_attempt {
+  attempt_id      String @id @default(uuid()) @db.Uuid
+  assessment_id   String @db.Uuid
+  part_number     Int    // 1, 2, hoặc 3
+  start_time      DateTime?
+  end_time        DateTime?
+  duration        Int?   // seconds
+  audio_url       String? @db.Text
+  transcript      String? @db.Text
+  part_score      Decimal? @db.Decimal(2, 1)
+  created_at      DateTime @default(now())
+  
+  speaking_assessment speaking_assessment @relation(fields: [assessment_id], references: [assessment_id])
+}
+// Table lưu cấu trúc câu hỏi đề thi
+model test_question {
+  question_id      String           @id @default(uuid()) @db.Uuid
+  test_id          String           @db.Uuid
+  section          test_section
+  part_number      Int?             // Part trong section (VD: Reading Part 1, 2, 3)
+  question_number  Int
+  parent_question_id String?        @db.Uuid // Cho câu hỏi con (sub-questions)
+  
+  content_html     String           // Nội dung câu hỏi HTML (có thể chứa audio/image)
+  instruction      String?          // Hướng dẫn làm bài
+  question_type    String?          // Trắc nghiệm/tự luận/điền từ/matching...
+  
+  // Media files
+  audio_url        String?          @db.Text // Link file audio nếu là listening
+  image_url        String?          @db.Text // Link hình ảnh nếu cần
+  
+  // Scoring
+  marks            Decimal?         @db.Decimal(3,1)
+  difficulty_level String?          // easy/medium/hard
+  
+  // Writing specific
+  word_limit_min   Int?             // Minimum words (for writing tasks)
+  word_limit_max   Int?             // Maximum words (for writing tasks)
+  time_limit       Int?             // Time limit in seconds
+  
+  created_at       DateTime         @default(now())
+  
+  test             test             @relation(fields: [test_id], references: [test_id])
+  parent_question  test_question?   @relation("QuestionHierarchy", fields: [parent_question_id], references: [question_id])
+  sub_questions    test_question[]  @relation("QuestionHierarchy")
+  options          question_option[] // Các đáp án cho câu hỏi (nếu là trắc nghiệm)
+  user_answers     user_answer[]
+}
+
+// Table Bảng đáp án
+model question_option {
+  option_id     String        @id @default(uuid()) @db.Uuid
+  question_id   String        @db.Uuid
+  content_html  String        // Nội dung đáp án (HTML)
+  content_text  String?       // Nội dung đáp án (plain text)
+  is_correct    Boolean       // Đáp án đúng/không đúng
+  option_index  Int?          // Thứ tự đáp án (A/B/C/D hoặc 0/1/2/3)
+  option_label  String?       // Label hiển thị (A, B, C, D, etc.)
+  is_mixable    Boolean?      // Có được trộn đáp án hay không
+  explanation   String?       // Giải thích đáp án
+  created_at    DateTime      @default(now())
+  
+  question      test_question @relation(fields: [question_id], references: [question_id])
+  user_answers  user_answer[]
+}
+
+// Table lưu thời gian riêng cho từng section của từng test
+model test_section_time {
+  id         String       @id @default(uuid()) @db.Uuid
+  test_id    String       @db.Uuid
+  section    test_section
+  duration   Int          // Số phút/giây cho section này
+  test       test         @relation(fields: [test_id], references: [test_id])
+}
+
+// Table lưu đáp án/chi tiết làm bài của từng học viên theo từng câu hỏi
+model user_answer {
+  answer_id      String        @id @default(uuid()) @db.Uuid
+  result_id      String        @db.Uuid
+  question_id    String        @db.Uuid
+  user_id        String        @db.Uuid
+  option_id      String?       @db.Uuid // Chọn đáp án nào (nếu là trắc nghiệm)
+  
+  // Answer content
+  answer_content String?       @db.Text // Nội dung tự luận, điền từ... (HTML/Text)
+  answer_text    String?       @db.Text // Plain text version
+  
+  // Scoring and evaluation
+  score          Decimal?      @db.Decimal(3,1) // Điểm từng câu (nếu có chấm)
+  is_correct     Boolean?      // Đúng/sai (for objective questions)
+  
+  // Timing
+  time_spent     Int?          // Thời gian làm câu này (seconds)
+  answered_at    DateTime?     // Thời điểm trả lời
+  
+  // Additional data
+  attempt_count  Int           @default(1) // Số lần thay đổi đáp án
+  is_flagged     Boolean       @default(false) // Đánh dấu để review lại
+  
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @default(now()) @updatedAt
+
+  test_result     test_result   @relation(fields: [result_id], references: [result_id])
+  test_question   test_question @relation(fields: [question_id], references: [question_id])
+  question_option question_option? @relation(fields: [option_id], references: [option_id])
+  user            user          @relation(fields: [user_id], references: [user_id])
+}
+

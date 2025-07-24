@@ -19,9 +19,8 @@ export class TestResultValidator {
     reading_score: number;
     writing_score: number;
     speaking_score: number;
-    overall_score: number;
   }): Promise<void> {
-    const { listening_score, reading_score, writing_score, speaking_score, overall_score } = scores;
+    const { listening_score, reading_score, writing_score, speaking_score } = scores;
 
     // Validate individual scores
     const individualScores = [listening_score, reading_score, writing_score, speaking_score];
@@ -29,19 +28,6 @@ export class TestResultValidator {
       if (score < 0 || score > 9) {
         throw new HttpException('Individual scores must be between 0 and 9', HttpStatus.BAD_REQUEST);
       }
-    }
-
-    // Validate overall score
-    if (overall_score < 0 || overall_score > 9) {
-      throw new HttpException('Overall score must be between 0 and 9', HttpStatus.BAD_REQUEST);
-    }
-
-    // Check if overall score is reasonable compared to individual scores
-    const averageScore = (listening_score + reading_score + writing_score + speaking_score) / 4;
-    const difference = Math.abs(overall_score - averageScore);
-    
-    if (difference > 1) {
-      throw new HttpException('Overall score should be close to the average of individual scores', HttpStatus.BAD_REQUEST);
     }
   }
 
