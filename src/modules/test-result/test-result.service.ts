@@ -5,6 +5,8 @@ import {
   TestResultResponse,
   TestResultUpdateData,
 } from './interfaces/test-result.interface';
+import { CreateTestResultDto } from './dto/create-test-result.dto';
+import { UpdateTestResultDto } from './dto/update-test-result.dto';
 import { TestResultRepository } from './test-result.repository';
 import { TestResultValidator } from './test-result.validator';
 import { calculateOverallScore } from './utils/score.utils';
@@ -16,7 +18,23 @@ export class TestResultService {
     private readonly testResultValidator: TestResultValidator,
   ) {}
 
-  async create(createData: TestResultCreateData): Promise<TestResultResponse> {
+  private transformCreateDto(dto: CreateTestResultDto): TestResultCreateData {
+    return {
+      ...dto,
+      completion_time: dto.completion_time ? new Date(dto.completion_time) : null,
+    };
+  }
+
+  private transformUpdateDto(dto: UpdateTestResultDto): TestResultUpdateData {
+    return {
+      ...dto,
+      completion_time: dto.completion_time ? new Date(dto.completion_time) : undefined,
+    };
+  }
+
+  async create(createDto: CreateTestResultDto): Promise<TestResultResponse> {
+    const createData = this.transformCreateDto(createDto);
+    
     // Validate user and test existence
     await this.testResultValidator.validateUserAndTest(createData.user_id, createData.test_id);
     
@@ -74,8 +92,10 @@ export class TestResultService {
 
   async update(
     result_id: string,
-    updateData: TestResultUpdateData,
+    updateDto: UpdateTestResultDto,
   ): Promise<TestResultResponse> {
+    const updateData = this.transformUpdateDto(updateDto);
+    
     await this.testResultValidator.ensureTestResultExists(result_id);
 
     // Validate scores if they are being updated

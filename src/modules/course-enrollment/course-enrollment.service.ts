@@ -1,18 +1,19 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CourseEnrollmentRepository } from './course-enrollment.repository';
-import { CourseEnrollmentValidator } from './course-enrollment.validator';
+import { BaseResponse } from 'src/common/dto/base-response.dto';
 import {
   CourseEnrollmentCreateData,
   CourseEnrollmentData,
   CourseEnrollmentResponse,
   CourseEnrollmentUpdateData,
 } from 'src/interfaces';
+import { CourseEnrollmentRepository } from './course-enrollment.repository';
+import { CourseEnrollmentValidator } from './course-enrollment.validator';
 import {
   CreateCourseEnrollmentDto,
   EnrollmentStatus,
 } from './dto/create-course-enrollment.dto';
-import { UpdateCourseEnrollmentDto } from './dto/update-course-enrollment.dto';
 import { JoinCourseDto } from './dto/join-course.dto';
+import { UpdateCourseEnrollmentDto } from './dto/update-course-enrollment.dto';
 
 @Injectable()
 export class CourseEnrollmentService {
@@ -100,8 +101,19 @@ export class CourseEnrollmentService {
   }
 
   // Admin: Find all enrollments
-  async findAll(): Promise<CourseEnrollmentResponse[]> {
-    return this.courseEnrollmentRepository.findAll();
+  async findAll(
+    page = 1,
+    pageSize = 30,
+    searchText = '',
+  ): Promise<BaseResponse<CourseEnrollmentResponse>> {
+    const [data, count] =
+      await this.courseEnrollmentRepository.findAllEnrollments(
+        page,
+        pageSize,
+        searchText,
+      );
+
+    return new BaseResponse<CourseEnrollmentResponse>(data, count);
   }
 
   // Admin/User: Find one enrollment
@@ -121,9 +133,7 @@ export class CourseEnrollmentService {
 
   // Get user's enrollments
   async findByUser(user_id: string): Promise<CourseEnrollmentResponse[]> {
-    return this.courseEnrollmentRepository.findAll({
-      where: { user_id },
-    });
+    return this.courseEnrollmentRepository.findByUserId(user_id);
   }
 
   // Admin: Update enrollment

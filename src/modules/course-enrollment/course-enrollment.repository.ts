@@ -21,6 +21,8 @@ export class CourseEnrollmentRepository extends BaseRepository<
     return this.model.findMany({
       ...args,
       include: {
+        user_id: false,
+        course_id: false,
         user: {
           select: {
             user_id: true,
@@ -41,6 +43,70 @@ export class CourseEnrollmentRepository extends BaseRepository<
     });
   }
 
+  async findAllEnrollments(
+    page: number,
+    pageSize: number,
+    searchText: string,
+  ): Promise<[CourseEnrollmentResponse[], number]> {
+    const skip = (page - 1) * pageSize;
+    const where = searchText
+      ? {
+          OR: [
+            {
+              user: {
+                username: {
+                  contains: searchText,
+                  mode: 'insensitive' as const,
+                },
+              },
+            },
+            {
+              course: {
+                course_name: {
+                  contains: searchText,
+                  mode: 'insensitive' as const,
+                },
+              },
+            },
+          ],
+        }
+      : {};
+
+    const [data, count] = await Promise.all([
+      this.model.findMany({
+        where,
+        skip,
+        take: pageSize,
+        include: {
+          user_id: false,
+          course_id: false,
+          user: {
+            select: {
+              user_id: true,
+              username: true,
+              email: true,
+              avatar_url: true,
+            },
+          },
+          course: {
+            select: {
+              course_id: true,
+              course_name: true,
+              description: true,
+              duration: true,
+            },
+          },
+        },
+        orderBy: {
+          enrollment_date: 'desc',
+        },
+      }),
+      this.model.count({ where }),
+    ]);
+
+    return [data, count];
+  }
+
   async findById(
     enrollment_id: string,
   ): Promise<CourseEnrollmentResponse | null> {
@@ -48,8 +114,8 @@ export class CourseEnrollmentRepository extends BaseRepository<
       where: { enrollment_id },
       select: {
         enrollment_id: true,
-        user_id: true,
-        course_id: true,
+        user_id: false,
+        course_id: false,
         enrollment_date: true,
         status: true,
         user: {
@@ -57,7 +123,7 @@ export class CourseEnrollmentRepository extends BaseRepository<
             user_id: true,
             username: true,
             email: true,
-            full_name: true,
+            avatar_url: true,
           },
         },
         course: {
@@ -78,10 +144,39 @@ export class CourseEnrollmentRepository extends BaseRepository<
       where: { user_id, course_id },
       select: {
         enrollment_id: true,
-        user_id: true,
-        course_id: true,
+        user_id: false,
+        course_id: false,
         enrollment_date: true,
         status: true,
+      },
+    });
+  }
+
+  async findByUserId(user_id: string): Promise<CourseEnrollmentResponse[]> {
+    return this.model.findMany({
+      where: { user_id },
+      include: {
+        user_id: false,
+        course_id: false,
+        user: {
+          select: {
+            user_id: true,
+            username: true,
+            email: true,
+            avatar_url: true,
+          },
+        },
+        course: {
+          select: {
+            course_id: true,
+            course_name: true,
+            description: true,
+            duration: true,
+          },
+        },
+      },
+      orderBy: {
+        enrollment_date: 'desc',
       },
     });
   }
@@ -93,8 +188,8 @@ export class CourseEnrollmentRepository extends BaseRepository<
       data: createData,
       select: {
         enrollment_id: true,
-        user_id: true,
-        course_id: true,
+        user_id: false,
+        course_id: false,
         enrollment_date: true,
         status: true,
       },
@@ -111,8 +206,8 @@ export class CourseEnrollmentRepository extends BaseRepository<
       data: update,
       select: {
         enrollment_id: true,
-        user_id: true,
-        course_id: true,
+        user_id: false,
+        course_id: false,
         enrollment_date: true,
         status: true,
       },

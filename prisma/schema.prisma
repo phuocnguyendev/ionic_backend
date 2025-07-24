@@ -33,21 +33,7 @@ enum test_session_status {
   cancelled
 }
 
-// Enum for IELTS band scores (0.0 to  test            user          @relation(fields: [user_id], references: [user_id])
-}
-
-// IELTS Band Score Mapping - để convert raw score thành band score
-model ielts_band_mapping {
-  mapping_id      String @id @default(uuid()) @db.Uuid
-  test_id         String @db.Uuid
-  section         test_section
-  raw_score_min   Int    // Raw score minimum
-  raw_score_max   Int    // Raw score maximum  
-  band_score      Decimal @db.Decimal(2, 1) // Corresponding band score
-  created_at      DateTime @default(now())
-  
-  test            test @relation(fields: [test_id], references: [test_id])
-}.0 with 0.5 increments)
+// Enum for IELTS band scores (0.0 to 9.0 with 0.5 increments)
 enum ielts_band_score {
   BAND_0_0
   BAND_0_5
@@ -68,6 +54,19 @@ enum ielts_band_score {
   BAND_8_0
   BAND_8_5
   BAND_9_0
+}
+
+// IELTS Band Score Mapping - để convert raw score thành band score
+model ielts_band_mapping {
+  mapping_id      String @id @default(uuid()) @db.Uuid
+  test_id         String @db.Uuid
+  section         test_section
+  raw_score_min   Int    // Raw score minimum
+  raw_score_max   Int    // Raw score maximum  
+  band_score      Decimal @db.Decimal(2, 1) // Corresponding band score
+  created_at      DateTime @default(now())
+  
+  test            test @relation(fields: [test_id], references: [test_id])
 }
 
 // Role table

@@ -9,6 +9,6 @@ import { TestValidator } from './test.validator';
   imports: [PrismaModule],
   controllers: [TestController],
   providers: [TestService, TestRepository, TestValidator],
-  exports: [TestService],
+  exports: [TestService, TestRepository],
 })
 export class TestModule {}
