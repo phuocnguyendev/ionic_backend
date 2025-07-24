@@ -9,15 +9,15 @@ export interface CourseEnrollmentData {
   status: string;
 }
 
-export interface CourseEnrollmentResponse extends Pick<CourseEnrollmentData, 'enrollment_id' | 'user_id' | 'course_id' | 'enrollment_date' | 'status'> {}
-
-export interface CourseEnrollmentCreateData extends Pick<CourseEnrollmentData, 'user_id' | 'course_id' | 'status'> {
+export interface CourseEnrollmentCreateData
+  extends Pick<CourseEnrollmentData, 'user_id' | 'course_id' | 'status'> {
   enrollment_date?: Date;
 }
 
-export interface CourseEnrollmentUpdateData extends Partial<Pick<CourseEnrollmentData, 'status' | 'enrollment_date'>> {}
+export interface CourseEnrollmentUpdateData
+  extends Partial<Pick<CourseEnrollmentData, 'status' | 'enrollment_date'>> {}
 
-export interface CourseEnrollmentWithRelations extends CourseEnrollmentData {
+export interface CourseEnrollmentResponse extends CourseEnrollmentData {
   user?: UserResponse;
   course?: CourseResponse;
 }

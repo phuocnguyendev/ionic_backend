@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma/prisma.service';
 import { BaseRepository } from 'src/repository/baseRepository';
-import { CourseData, CourseResponse } from './interfaces/course.interface';
+import {
+  CourseCreateData,
+  CourseData,
+  CourseResponse,
+  CourseUpdateData,
+} from './interfaces/course.interface';
 
 @Injectable()
 export class CourseRepository extends BaseRepository<CourseData, any> {
@@ -25,6 +30,8 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
           select: {
             center_id: true,
             center_name: true,
+            logo_url: true,
+            address: true,
           },
         },
       },
@@ -53,36 +60,15 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
           select: {
             center_id: true,
             center_name: true,
+            logo_url: true,
+            address: true,
           },
         },
       },
     });
   }
 
-  async findAllCourses(): Promise<CourseResponse[]> {
-    return this.model.findMany({
-      orderBy: {
-        course_name: 'asc',
-      },
-      select: {
-        course_id: true,
-        course_name: true,
-        description: true,
-        center_id: false,
-        duration: true,
-        created_at: true,
-        updated_at: true,
-        center: {
-          select: {
-            center_id: true,
-            center_name: true,
-          },
-        },
-      },
-    });
-  }
-
-  async paginateCourses(
+  async findAllCourses(
     page: number,
     pageSize: number,
     searchText?: string,
@@ -113,6 +99,8 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
             select: {
               center_id: true,
               center_name: true,
+              logo_url: true,
+              address: true,
             },
           },
         },
@@ -147,7 +135,7 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
     });
   }
 
-  async createCourse(createData: any): Promise<CourseResponse> {
+  async createCourse(createData: CourseCreateData): Promise<CourseResponse> {
     const course = await this.model.create({
       data: createData,
       select: {
@@ -171,7 +159,7 @@ export class CourseRepository extends BaseRepository<CourseData, any> {
 
   async updateCourse(
     course_id: string,
-    updateData: any,
+    updateData: CourseUpdateData,
   ): Promise<CourseResponse> {
     const course = await this.model.update({
       where: { course_id },

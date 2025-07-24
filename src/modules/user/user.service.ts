@@ -3,7 +3,11 @@ import * as bcrypt from 'bcryptjs';
 import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserCreateData, UserResponse, UserWithRole } from './interfaces/user.interface';
+import {
+  UserCreateData,
+  UserResponse,
+  UserWithRole,
+} from './interfaces/user.interface';
 import { UniqueUserValidator } from './unique-user.validator';
 import { UserRepository } from './user.repository';
 
@@ -61,7 +65,7 @@ export class UserService {
     pageSize = 30,
     searchText = '',
   ): Promise<BaseResponse<UserResponse>> {
-    const [data, count] = await this.userRepository.paginateUsers(
+    const [data, count] = await this.userRepository.findAllUsers(
       page,
       pageSize,
       searchText,

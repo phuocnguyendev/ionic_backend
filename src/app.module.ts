@@ -24,7 +24,7 @@ import { TestResultModule } from './modules/test-result/test-result.module';
 // import { StudentEvaluationModule } from './modules/student-evaluation/student-evaluation.module';
 // import { TestHistoryModule } from './modules/test-history/test-history.module';
 // import { CourseTestModule } from './modules/course-test/course-test.module';
-// import { CourseEnrollmentModule } from './modules/course-enrollment/course-enrollment.module';
+import { CourseEnrollmentModule } from './modules/course-enrollment/course-enrollment.module';
 // import { SystemLogModule } from './modules/system-log/system-log.module';
 // import { AiRecommendationModule } from './modules/ai-recommendation/ai-recommendation.module';
 // import { AnswerSampleModule } from './modules/answer-sample/answer-sample.module';
@@ -60,7 +60,7 @@ import { TestResultModule } from './modules/test-result/test-result.module';
     // StudentEvaluationModule,
     // TestHistoryModule,
     // CourseTestModule,
-    // CourseEnrollmentModule,
+    CourseEnrollmentModule,
     // SystemLogModule,
     // AiRecommendationModule,
     // AnswerSampleModule,

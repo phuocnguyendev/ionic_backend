@@ -13,11 +13,11 @@ import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
 import { CreateEnglishCenterDto } from './dto/create-english_center.dto';
-import { EnglishCenterResponse } from './dto/interfaces/english_center.interface';
+import { EnglishCenterResponse } from './interfaces/english_center.interface';
 import { UpdateEnglishCenterDto } from './dto/update-english_center.dto';
 import { EnglishCenterService } from './english-center.service';
 
-@ApiTags('english_center')
+@ApiTags('English_center')
 @Controller('english-center')
 export class EnglishCenterController {
   constructor(private readonly englishCenterService: EnglishCenterService) {}

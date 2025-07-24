@@ -1,31 +1,189 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CourseEnrollmentRepository } from './course-enrollment.repository';
+import { CourseEnrollmentValidator } from './course-enrollment.validator';
+import {
+  CourseEnrollmentCreateData,
+  CourseEnrollmentData,
+  CourseEnrollmentResponse,
+  CourseEnrollmentUpdateData,
+} from 'src/interfaces';
+import {
+  CreateCourseEnrollmentDto,
+  EnrollmentStatus,
+} from './dto/create-course-enrollment.dto';
+import { UpdateCourseEnrollmentDto } from './dto/update-course-enrollment.dto';
+import { JoinCourseDto } from './dto/join-course.dto';
 
 @Injectable()
-export class courseenrollmentService {
-  constructor() {}
+export class CourseEnrollmentService {
+  constructor(
+    private readonly courseEnrollmentRepository: CourseEnrollmentRepository,
+    private readonly courseEnrollmentValidator: CourseEnrollmentValidator,
+  ) {}
 
-  async create(createData: any): Promise<any> {
-    // TODO: Implement creation logic
-    throw new Error('Not implemented');
+  // Admin: Create enrollment
+  async create(
+    createDto: CreateCourseEnrollmentDto,
+  ): Promise<CourseEnrollmentData> {
+    // Validate that user hasn't already enrolled in this course
+    await this.courseEnrollmentValidator.validateUserEnrollment(
+      createDto.user_id,
+      createDto.course_id,
+    );
+
+    // Ensure course exists
+    await this.courseEnrollmentValidator.ensureCourseExists(
+      createDto.course_id,
+    );
+
+    const createData: CourseEnrollmentCreateData = {
+      user_id: createDto.user_id,
+      course_id: createDto.course_id,
+      status: createDto.status || EnrollmentStatus.ACTIVE,
+      enrollment_date: new Date(),
+    };
+
+    return this.courseEnrollmentRepository.createCourseEnrollment(createData);
   }
 
-  async findAll(): Promise<any[]> {
-    // TODO: Implement find all logic
-    throw new Error('Not implemented');
+  // User: Join course
+  async joinCourse(
+    user_id: string,
+    joinDto: JoinCourseDto,
+  ): Promise<CourseEnrollmentData> {
+    // Validate that user hasn't already enrolled in this course
+    await this.courseEnrollmentValidator.validateUserEnrollment(
+      user_id,
+      joinDto.course_id,
+    );
+
+    // Ensure course exists
+    await this.courseEnrollmentValidator.ensureCourseExists(joinDto.course_id);
+
+    const createData: CourseEnrollmentCreateData = {
+      user_id,
+      course_id: joinDto.course_id,
+      status: EnrollmentStatus.ACTIVE,
+      enrollment_date: new Date(),
+    };
+
+    return this.courseEnrollmentRepository.createCourseEnrollment(createData);
   }
 
-  async findOne(id: string): Promise<any> {
-    // TODO: Implement find one logic
-    throw new Error('Not implemented');
+  // User: Leave course
+  async leaveCourse(user_id: string, course_id: string): Promise<void> {
+    const enrollment =
+      await this.courseEnrollmentRepository.findByUserAndCourse(
+        user_id,
+        course_id,
+      );
+
+    if (!enrollment) {
+      throw new HttpException(
+        'Bạn chưa đăng ký khóa học này',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (enrollment.status === EnrollmentStatus.DROPPED) {
+      throw new HttpException(
+        'Bạn đã rời khỏi khóa học này rồi',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // Update status to dropped instead of deleting
+    await this.courseEnrollmentRepository.updateCourseEnrollment(
+      enrollment.enrollment_id,
+      { status: EnrollmentStatus.DROPPED },
+    );
   }
 
-  async update(id: string, updateData: any): Promise<any> {
-    // TODO: Implement update logic
-    throw new Error('Not implemented');
+  // Admin: Find all enrollments
+  async findAll(): Promise<CourseEnrollmentResponse[]> {
+    return this.courseEnrollmentRepository.findAll();
   }
 
-  async remove(id: string): Promise<void> {
-    // TODO: Implement removal logic
-    throw new Error('Not implemented');
+  // Admin/User: Find one enrollment
+  async findOne(enrollment_id: string): Promise<CourseEnrollmentResponse> {
+    const enrollment =
+      await this.courseEnrollmentRepository.findById(enrollment_id);
+
+    if (!enrollment) {
+      throw new HttpException(
+        'Không tìm thấy đăng ký khóa học',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return enrollment;
+  }
+
+  // Get user's enrollments
+  async findByUser(user_id: string): Promise<CourseEnrollmentResponse[]> {
+    return this.courseEnrollmentRepository.findAll({
+      where: { user_id },
+    });
+  }
+
+  // Admin: Update enrollment
+  async update(
+    enrollment_id: string,
+    updateDto: UpdateCourseEnrollmentDto,
+  ): Promise<CourseEnrollmentData> {
+    const existingEnrollment =
+      await this.courseEnrollmentRepository.findById(enrollment_id);
+
+    if (!existingEnrollment) {
+      throw new HttpException(
+        'Không tìm thấy đăng ký khóa học',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updateData: CourseEnrollmentUpdateData = {};
+
+    if (updateDto.status) {
+      updateData.status = updateDto.status;
+    }
+
+    return this.courseEnrollmentRepository.updateCourseEnrollment(
+      enrollment_id,
+      updateData,
+    );
+  }
+
+  // Admin: Remove enrollment (soft delete by changing status)
+  async remove(enrollment_id: string): Promise<void> {
+    const enrollment =
+      await this.courseEnrollmentRepository.findById(enrollment_id);
+
+    if (!enrollment) {
+      throw new HttpException(
+        'Không tìm thấy đăng ký khóa học',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    // Soft delete by updating status to dropped
+    await this.courseEnrollmentRepository.updateCourseEnrollment(
+      enrollment_id,
+      { status: EnrollmentStatus.DROPPED },
+    );
+  }
+
+  // Admin: Hard delete enrollment (permanently remove)
+  async hardDelete(enrollment_id: string): Promise<void> {
+    const enrollment =
+      await this.courseEnrollmentRepository.findById(enrollment_id);
+
+    if (!enrollment) {
+      throw new HttpException(
+        'Không tìm thấy đăng ký khóa học',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    await this.courseEnrollmentRepository.deleteCourseEnrollment(enrollment_id);
   }
 }

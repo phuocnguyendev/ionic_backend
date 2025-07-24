@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/config/prisma/prisma.service';
 import { BaseRepository } from 'src/repository/baseRepository';
-import { UserData, UserResponse, UserWithRole } from './interfaces/user.interface';
+import {
+  UserData,
+  UserResponse,
+  UserWithRole,
+} from './interfaces/user.interface';
 
 @Injectable()
 export class UserRepository extends BaseRepository<UserData, any> {
@@ -10,7 +14,7 @@ export class UserRepository extends BaseRepository<UserData, any> {
   }
 
   async findByEmail(email: string): Promise<UserWithRole | null> {
-    return this.model.findUnique({ 
+    return this.model.findUnique({
       where: { email },
       include: {
         role: {
@@ -27,7 +31,7 @@ export class UserRepository extends BaseRepository<UserData, any> {
     return this.model.findUnique({ where: { username } });
   }
 
-  async paginateUsers(
+  async findAllUsers(
     page: number,
     pageSize: number,
     searchText?: string,
@@ -47,7 +51,13 @@ export class UserRepository extends BaseRepository<UserData, any> {
           username: true,
           email: true,
           avatar_url: true,
-          center_id: true,
+          center_id: false,
+          center: {
+            select: {
+              center_id: true,
+              center_name: true,
+            },
+          },
         },
       }),
       this.model.count({ where }),
@@ -64,7 +74,13 @@ export class UserRepository extends BaseRepository<UserData, any> {
         username: true,
         email: true,
         avatar_url: true,
-        center_id: true,
+        center_id: false,
+        center: {
+          select: {
+            center_id: true,
+            center_name: true,
+          },
+        },
       },
     });
   }

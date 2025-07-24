@@ -19,8 +19,8 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseResponse } from './interfaces/course.interface';
 
-@ApiTags('courses')
-@Controller('courses')
+@ApiTags('Course')
+@Controller('course')
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
