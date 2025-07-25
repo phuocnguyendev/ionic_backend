@@ -6,14 +6,14 @@ import {
   CourseEnrollmentResponse,
   CourseEnrollmentUpdateData,
 } from 'src/interfaces';
-import { CourseEnrollmentRepository } from './course-enrollment.repository';
-import { CourseEnrollmentValidator } from './course-enrollment.validator';
 import {
   CreateCourseEnrollmentDto,
   EnrollmentStatus,
 } from './dto/create-course-enrollment.dto';
 import { JoinCourseDto } from './dto/join-course.dto';
 import { UpdateCourseEnrollmentDto } from './dto/update-course-enrollment.dto';
+import { CourseEnrollmentValidator } from './validators';
+import { CourseEnrollmentRepository } from './repositories';
 
 @Injectable()
 export class CourseEnrollmentService {

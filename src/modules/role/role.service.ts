@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from 'src/config/elasticsearch/elasticsearch.service';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { RoleResponse, RoleData } from './interfaces/role.interface';
-import { RoleRepository } from './role.repository';
-import { RoleValidator } from './role.validator';
+
+import { RoleRepository } from './repositories';
+import { RoleValidator } from './validators';
+import { CreateRoleDto, UpdateRoleDto } from './dto';
+import { RoleData, RoleResponse } from 'src/interfaces';
 
 @Injectable()
 export class RoleService {
@@ -34,11 +34,11 @@ export class RoleService {
 
   async update(updateRoleDto: UpdateRoleDto): Promise<RoleResponse> {
     const { role_id, role_name } = updateRoleDto;
-    
+
     if (!role_name) {
       throw new Error('role_name là bắt buộc');
     }
-    
+
     await this.roleValidator.ensureRoleExists(role_id);
     await this.roleValidator.validateRoleName(role_name, role_id);
 

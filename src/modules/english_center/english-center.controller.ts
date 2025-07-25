@@ -17,8 +17,8 @@ import { EnglishCenterResponse } from './interfaces/english_center.interface';
 import { UpdateEnglishCenterDto } from './dto/update-english_center.dto';
 import { EnglishCenterService } from './english-center.service';
 
-@ApiTags('English_center')
-@Controller('english-center')
+@ApiTags('EnglishCenter')
+@Controller('EnglishCenter')
 export class EnglishCenterController {
   constructor(private readonly englishCenterService: EnglishCenterService) {}
 

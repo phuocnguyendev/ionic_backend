@@ -7,6 +7,7 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { GlobalValidationPipe } from './core';
 import { TransformInterceptor } from './core/transform.interceptor';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -16,6 +17,7 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
+  app.useGlobalGuards(new JwtAuthGuard(reflector));
 
   // config api version
   app.enableVersioning({

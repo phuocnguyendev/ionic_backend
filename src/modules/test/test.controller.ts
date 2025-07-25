@@ -16,23 +16,22 @@ import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
 import { CreateTestDto } from './dto/create-test.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
-import { TestResponse } from './interfaces/test.interface';
 import { TestService } from './test.service';
+import { TestResponse } from 'src/interfaces';
 
 @ApiTags('Test')
-@Controller('test')
+@Controller('Test')
 export class TestController {
   constructor(private readonly testService: TestService) {}
 
-  @Post()
-  @ResponseMessage('Tạo bài kiểm tra thành công')
+  @ResponseMessage(SUCCESS)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createDto: CreateTestDto): Promise<TestResponse> {
     return this.testService.create(createDto);
   }
 
   @Get()
-  @ResponseMessage('Lấy danh sách bài kiểm tra thành công')
+  @ResponseMessage(SUCCESS)
   @ApiQuery({
     name: 'page',
     required: false,

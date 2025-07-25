@@ -18,6 +18,9 @@ import { TestModule } from './modules/test/test.module';
 // TODO: Uncomment these modules after implementing them properly
 import { CourseModule } from './modules/course/course.module';
 import { TestResultModule } from './modules/test-result/test-result.module';
+import { TestSessionModule } from './modules/test-session/test-session.module';
+import { UserAnswerModule } from './modules/user-answer/user-answer.module';
+// import { SpeakingAssessmentModule } from './modules/speaking-assessment/speaking-assessment.module';
 // import { NotificationModule } from './modules/notification/notification.module';
 // import { PermissionModule } from './modules/permission/permission.module';
 // import { MockExamModule } from './modules/mock-exam/mock-exam.module';
@@ -54,6 +57,9 @@ import { CourseEnrollmentModule } from './modules/course-enrollment/course-enrol
     CourseModule,
 
     TestResultModule,
+    TestSessionModule,
+    UserAnswerModule,
+    // SpeakingAssessmentModule,
     // NotificationModule,
     // PermissionModule,
     // MockExamModule,

@@ -9,31 +9,24 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import {
-  CREATE_USER,
-  DELETE_USER,
-  GET_USER_DETAIL,
-  GET_USERS,
-  UPDATE_USER,
-} from 'src/constants/message.constant';
+import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
+import { CreateUserDto, UpdateUserDto } from './dto';
 
 @ApiTags('User')
-@Controller('user')
+@Controller('User')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @ResponseMessage(CREATE_USER)
+  @ResponseMessage(SUCCESS)
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
-  @ResponseMessage(GET_USERS)
+  @ResponseMessage(SUCCESS)
   @ApiQuery({
     name: 'page',
     required: false,
@@ -58,19 +51,19 @@ export class UserController {
   }
 
   @Get(':id')
-  @ResponseMessage(GET_USER_DETAIL)
+  @ResponseMessage(SUCCESS)
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
   @Put(':id')
-  @ResponseMessage(UPDATE_USER)
+  @ResponseMessage(SUCCESS)
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  @ResponseMessage(DELETE_USER)
+  @ResponseMessage(SUCCESS)
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }

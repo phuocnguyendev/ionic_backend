@@ -1,28 +1,6 @@
-export const INVALID_EMAIL = 'Invalid email format';
-export const CONFLICT_EMAIL = 'Email already existed';
-export const INVALID_PASSWORD =
-  'Password must contain a number, a letter and a special character';
-
 export const SUCCESS = 'Thao tác thành công';
-export const FORBIDDEN_ACCESS = 'You are not allowed to perform this action';
 
-export const NOTFOUND_USER = 'User not found';
-export const GET_USER_DETAIL = 'Get user detail successfully';
-export const GET_USERS = 'Get users list successfully';
-export const GET_USER_EMAIL = 'Get users by Email successfully';
-export const GET_USER_TOKEN = 'Get users by Token successfully';
-export const CREATE_USER = 'Create user successfully';
-export const UPDATE_USER = 'Update user successfully';
-export const DELETE_USER = 'Delete user successfully';
-export const RESTORE_USER = 'Restore user successfully';
-
-export const ROLE_LOAD_SUCCESS = 'Role get all successfully';
-export const ROLE_UPDATE_SUCCESS = 'Role has been updated successfully';
-export const ROLE_DELETE_SUCCESS = 'Role has been deleted successfully';
-export const ROLE_CREATE_SUCCESS = 'Role has been created successfully';
-export const FAIL_CREATE_ROLE = 'Role can not be created';
-export const FAIL_UPDATE_ROLE = 'Role can not be updated';
-export const FAIL_DELETE_ROLE = 'Role can not be deleted';
-export const FAIL_LOAD_ROLE = 'Role can not be loaded';
-export const DUPLICATED_ROLE = 'Role already existed';
-export const NOTFOUND_ROLE = 'Role not found';
+export const USER_ANSWER_NOT_FOUND = 'Không tìm thấy đáp án của người dùng';
+export const USER_ANSWER_CREATED = 'Đã tạo đáp án của người dùng thành công';
+export const USER_ANSWER_UPDATED = 'Cập nhật đáp án của người dùng thành công';
+export const USER_ANSWER_DELETED = 'Xóa đáp án của người dùng thành công';

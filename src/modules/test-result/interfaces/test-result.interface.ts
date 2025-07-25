@@ -24,6 +24,12 @@ export interface TestResultData {
   is_completed?: boolean;
   completion_time?: Date | null;
 
+  // Section completion tracking (new fields)
+  listening_completed_at?: Date | null;
+  reading_completed_at?: Date | null;
+  writing_completed_at?: Date | null;
+  speaking_completed_at?: Date | null;
+
   feedback?: string | null;
   created_at?: Date;
 }
@@ -46,6 +52,10 @@ export interface TestResultResponse
     | 'speaking_raw_score'
     | 'is_completed'
     | 'completion_time'
+    | 'listening_completed_at'
+    | 'reading_completed_at'
+    | 'writing_completed_at'
+    | 'speaking_completed_at'
     | 'feedback'
     | 'created_at'
   > {
@@ -77,7 +87,10 @@ export interface TestResultCreateData
     | 'writing_raw_score'
     | 'speaking_raw_score'
     | 'is_completed'
-    | 'completion_time'
+    | 'listening_completed_at'
+    | 'reading_completed_at'
+    | 'writing_completed_at'
+    | 'speaking_completed_at'
     | 'feedback'
   > {}
 
@@ -94,8 +107,10 @@ export interface TestResultUpdateData
       | 'reading_raw_score'
       | 'writing_raw_score'
       | 'speaking_raw_score'
-      | 'is_completed'
-      | 'completion_time'
+      | 'listening_completed_at'
+      | 'reading_completed_at'
+      | 'writing_completed_at'
+      | 'speaking_completed_at'
       | 'feedback'
     >
   > {}
