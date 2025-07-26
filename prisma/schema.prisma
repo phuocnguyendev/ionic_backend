@@ -23,50 +23,15 @@ enum test_quarter {
   q4
 }
 
-// Enum for test session status
-enum test_session_status {
+// Enum for status - dùng chung cho test session và section
+enum status {
   not_started
   in_progress
   paused
+  submitted
   completed
   timeout
   cancelled
-}
-
-// Enum for IELTS band scores (0.0 to 9.0 with 0.5 increments)
-enum ielts_band_score {
-  BAND_0_0
-  BAND_0_5
-  BAND_1_0
-  BAND_1_5
-  BAND_2_0
-  BAND_2_5
-  BAND_3_0
-  BAND_3_5
-  BAND_4_0
-  BAND_4_5
-  BAND_5_0
-  BAND_5_5
-  BAND_6_0
-  BAND_6_5
-  BAND_7_0
-  BAND_7_5
-  BAND_8_0
-  BAND_8_5
-  BAND_9_0
-}
-
-// IELTS Band Score Mapping - để convert raw score thành band score
-model ielts_band_mapping {
-  mapping_id      String @id @default(uuid()) @db.Uuid
-  test_id         String @db.Uuid
-  section         test_section
-  raw_score_min   Int    // Raw score minimum
-  raw_score_max   Int    // Raw score maximum  
-  band_score      Decimal @db.Decimal(2, 1) // Corresponding band score
-  created_at      DateTime @default(now())
-  
-  test            test @relation(fields: [test_id], references: [test_id])
 }
 
 // Role table
@@ -91,7 +56,7 @@ model english_center {
   courses     course[]
   mock_exams   mock_exam[]
   reports     report[]
-  users       user[] 
+  users       user[]
   test_and_center_reviews test_and_center_review[]
 }
 
@@ -134,7 +99,7 @@ model user {
   test_sessions test_session[]
   course_enrollments course_enrollment[]
   permissions  permission[]
-  system_logs    system_log[]
+  system_logs  system_log[]
   notifications notification[]
   reviews       test_and_center_review[]
   evaluations   student_evaluations[]
@@ -164,7 +129,6 @@ model test {
   reviews test_and_center_review[]
   test_questions test_question[]
   test_section_times test_section_time[]
-  band_mappings ielts_band_mapping[]
 }
 
 // Test Session table - để track session thi của từng user
@@ -172,7 +136,7 @@ model test_session {
   session_id       String @id @default(uuid()) @db.Uuid
   user_id          String @db.Uuid
   test_id          String @db.Uuid
-  status           test_session_status @default(not_started)
+  status           status @default(not_started)
   current_section  test_section?
   start_time       DateTime?
   end_time         DateTime?
@@ -186,6 +150,7 @@ model test_session {
   user             user @relation(fields: [user_id], references: [user_id])
   test             test @relation(fields: [test_id], references: [test_id])
   section_attempts test_section_attempt[]
+  section_submissions section_submission[]
 }
 
 // Test Section Attempt - track progress từng section
@@ -193,13 +158,33 @@ model test_section_attempt {
   attempt_id    String @id @default(uuid()) @db.Uuid
   session_id    String @db.Uuid
   section       test_section
+  status        status @default(not_started)
   start_time    DateTime?
   end_time      DateTime?
+  submitted_at  DateTime? // Thời điểm nộp bài section này
   time_spent    Int? // Thời gian làm bài section này (seconds)
   is_completed  Boolean @default(false)
+  auto_submit   Boolean @default(false) // Có phải tự động nộp do hết giờ không
   created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
   
   test_session  test_session @relation(fields: [session_id], references: [session_id])
+  
+  @@unique([session_id, section])
+}
+
+// Section Submission Log - để track lịch sử nộp bài từng section
+model section_submission {
+  submission_id   String @id @default(uuid()) @db.Uuid
+  session_id      String @db.Uuid
+  section         test_section
+  submitted_at    DateTime @default(now())
+  submission_type String // 'manual' hoặc 'auto_timeout'
+  answers_count   Int? // Số câu đã trả lời
+  time_remaining  Int? // Thời gian còn lại khi nộp (seconds)
+  created_at      DateTime @default(now())
+  
+  test_session    test_session @relation(fields: [session_id], references: [session_id])
 }
 
 // Test Results table
@@ -226,6 +211,12 @@ model test_result {
   is_completed     Boolean @default(false)
   completion_time  DateTime?
   
+  // Section completion tracking
+  listening_completed_at DateTime?
+  reading_completed_at   DateTime?
+  writing_completed_at   DateTime?
+  speaking_completed_at  DateTime?
+  
   feedback         String?
   created_at       DateTime @default(now())
   user             user @relation(fields: [user_id], references: [user_id])
@@ -235,6 +226,11 @@ model test_result {
   user_answers     user_answer[]
   writing_assessments writing_assessment[]
   speaking_assessments speaking_assessment[]
+  
+  @@unique([user_id, test_id])
+  @@index([user_id])
+  @@index([test_id])
+  @@index([created_at])
 }
 
 // Test History table
@@ -248,6 +244,10 @@ model test_history {
   created_at   DateTime @default(now())
   user         user @relation(fields: [user_id], references: [user_id])
   test         test @relation(fields: [test_id], references: [test_id])
+  
+  @@index([user_id])
+  @@index([test_id])
+  @@index([test_date])
 }
 
 // Course table
@@ -284,6 +284,10 @@ model course_enrollment {
   status        String
   user          user @relation(fields: [user_id], references: [user_id])
   course        course @relation(fields: [course_id], references: [course_id])
+  
+  @@unique([user_id, course_id])
+  @@index([user_id])
+  @@index([course_id])
 }
 
 // Permission table
@@ -294,7 +298,9 @@ model permission {
   resource_type String
   created_at    DateTime @default(now())
   role          role @relation(fields: [role_id], references: [role_id])
-  users         user[] // Thêm trường đối ứng
+  users         user[]
+  
+  @@unique([role_id, permission_type, resource_type])
 }
 
 // System Log table
@@ -304,6 +310,9 @@ model system_log {
   user_id   String @db.Uuid
   created_at DateTime @default(now())
   user      user @relation(fields: [user_id], references: [user_id])
+  
+  @@index([user_id])
+  @@index([created_at])
 }
 
 // AI Recommendations table
@@ -478,6 +487,8 @@ model test_section_time {
   section    test_section
   duration   Int          // Số phút/giây cho section này
   test       test         @relation(fields: [test_id], references: [test_id])
+  
+  @@unique([test_id, section])
 }
 
 // Table lưu đáp án/chi tiết làm bài của từng học viên theo từng câu hỏi
@@ -511,5 +522,9 @@ model user_answer {
   test_question   test_question @relation(fields: [question_id], references: [question_id])
   question_option question_option? @relation(fields: [option_id], references: [option_id])
   user            user          @relation(fields: [user_id], references: [user_id])
+  
+  @@unique([result_id, question_id])
+  @@index([user_id])
+  @@index([question_id])
 }
 

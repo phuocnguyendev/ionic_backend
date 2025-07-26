@@ -8,8 +8,8 @@ import {
   UserResponse,
   UserWithRole,
 } from './interfaces/user.interface';
-import { UniqueUserValidator } from './unique-user.validator';
-import { UserRepository } from './user.repository';
+import { UserRepository } from './repositories';
+import { UniqueUserValidator } from './validators';
 
 @Injectable()
 export class UserService {

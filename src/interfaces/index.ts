@@ -6,11 +6,15 @@ export * from '../modules/auth/interfaces/auth.interface';
 // Business logic interfaces
 export * from '../modules/english_center/interfaces/english_center.interface';
 export * from '../modules/test/interfaces/test.interface';
+export * from '../modules/test-session/interfaces/test-session.interface';
+export * from '../modules/test/interfaces/test-question.interface';
+export * from '../modules/test/interfaces/test-assessment.interface';
 export * from '../modules/course/interfaces/course.interface';
 export * from '../modules/test-result/interfaces/test-result.interface';
 export * from '../modules/notification/interfaces/notification.interface';
 export * from '../modules/permission/interfaces/permission.interface';
 export * from '../modules/mock-exam/interfaces/mock-exam.interface';
+export * from '../modules/user-answer/interfaces/user-answer.interface';
 
 // Additional interfaces
 export * from '../modules/student-evaluation/interfaces/student-evaluation.interface';

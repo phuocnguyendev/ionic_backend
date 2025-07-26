@@ -14,18 +14,17 @@ import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { BaseResponse } from 'src/common/dto/base-response.dto';
 import { SUCCESS } from 'src/constants/message.constant';
 import { ResponseMessage } from 'src/core/customize';
-import { CreateTestResultDto } from './dto/create-test-result.dto';
-import { UpdateTestResultDto } from './dto/update-test-result.dto';
 import { TestResultResponse } from './interfaces/test-result.interface';
 import { TestResultService } from './test-result.service';
+import { CreateTestResultDto, UpdateTestResultDto } from './dto';
 
-@ApiTags('Test-results')
+@ApiTags('TestResult')
 @Controller('test-results')
 export class TestResultController {
   constructor(private readonly testResultService: TestResultService) {}
 
   @Post()
-  @ResponseMessage('Tạo kết quả test thành công')
+  @ResponseMessage(SUCCESS)
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() createDto: CreateTestResultDto,
@@ -34,7 +33,7 @@ export class TestResultController {
   }
 
   @Get()
-  @ResponseMessage('Lấy danh sách kết quả test thành công')
+  @ResponseMessage(SUCCESS)
   @ApiQuery({
     name: 'page',
     required: false,
@@ -101,5 +100,12 @@ export class TestResultController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string): Promise<void> {
     return this.testResultService.remove(id);
+  }
+
+  @Post(':id/complete')
+  @ResponseMessage(SUCCESS)
+  @HttpCode(HttpStatus.OK)
+  async completeTest(@Param('id') id: string): Promise<TestResultResponse> {
+    return this.testResultService.completeTest(id);
   }
 }

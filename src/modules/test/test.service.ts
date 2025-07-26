@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { BaseResponse } from 'src/common/dto/base-response.dto';
-import {
-  TestCreateData,
-  TestResponse,
-  TestUpdateData,
-} from './interfaces/test.interface';
-import { TestRepository } from './test.repository';
-import { TestValidator } from './test.validator';
+
+import { TestValidator } from './validators/test.validator';
+import { TestRepository } from './repositories';
+import { TestCreateData, TestResponse, TestUpdateData } from 'src/interfaces';
 
 @Injectable()
 export class TestService {

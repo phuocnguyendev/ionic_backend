@@ -136,13 +136,44 @@ export class CreateTestResultDto {
   is_completed?: boolean;
 
   @ApiProperty({
-    description: 'Thời gian hoàn thành bài thi',
-    example: '2024-07-24T10:30:00Z',
+    description: 'Thời điểm hoàn thành phần listening',
+    example: '2025-07-25T11:30:00.000Z',
+    format: 'date-time',
     required: false,
   })
   @IsOptional()
   @IsDateString()
-  completion_time?: string;
+  listening_completed_at?: string;
+
+  @ApiProperty({
+    description: 'Thời điểm hoàn thành phần reading',
+    example: '2025-07-25T12:30:00.000Z',
+    format: 'date-time',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  reading_completed_at?: string;
+
+  @ApiProperty({
+    description: 'Thời điểm hoàn thành phần writing',
+    example: '2025-07-25T13:30:00.000Z',
+    format: 'date-time',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  writing_completed_at?: string;
+
+  @ApiProperty({
+    description: 'Thời điểm hoàn thành phần speaking',
+    example: '2025-07-25T14:00:00.000Z',
+    format: 'date-time',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  speaking_completed_at?: string;
 
   @ApiProperty({
     description: 'Phản hồi và nhận xét',

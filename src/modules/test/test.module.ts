@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from 'src/config/prisma/prisma.module';
 import { TestController } from './test.controller';
-import { TestRepository } from './test.repository';
 import { TestService } from './test.service';
-import { TestValidator } from './test.validator';
+import { TestValidator } from './validators/test.validator';
+import { TestRepository } from './repositories';
 
 @Module({
   imports: [PrismaModule],

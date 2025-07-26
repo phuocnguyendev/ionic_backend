@@ -1,99 +1,350 @@
+# 🎯 IELTS Online Test System - Backend API
+
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+  <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white" alt="Prisma" />
+  <img src="https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white" alt="Elasticsearch" />
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+  Hệ thống thi IELTS online toàn diện với API backend mạnh mẽ được xây dựng bằng NestJS framework
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📋 Mô tả dự án
 
-## Project setup
+**IELTS Online Test System** là một nền tảng thi IELTS trực tuyến hoàn chỉnh, cung cấp:
 
-```bash
-$ yarn install
+- 🎓 **Quản lý thi IELTS**: Tạo và quản lý các bài thi IELTS với đầy đủ 4 kỹ năng
+- 👥 **Quản lý người dùng**: Hệ thống phân quyền role-based với authentication JWT
+- 🏢 **Quản lý trung tâm**: Đa trung tâm Anh ngữ với quản lý khóa học
+- 📊 **Chấm điểm tự động**: Tính toán band score IELTS theo tiêu chuẩn quốc tế
+- 🎯 **Test session**: Quản lý phiên thi với theo dõi thời gian thực
+- 📈 **Báo cáo & Thống kê**: Dashboard analytics chi tiết
+- 🤖 **AI Recommendation**: Gợi ý học tập thông minh
+
+## 🏗️ Kiến trúc hệ thống
+
+### Core Technologies
+
+- **Framework**: NestJS với TypeScript
+- **Database**: PostgreSQL với Prisma ORM
+- **Caching**: Redis cho session và caching
+- **Search**: Elasticsearch cho tìm kiếm nâng cao
+- **Authentication**: JWT-based với passport
+- **API Documentation**: Swagger/OpenAPI
+- **Containerization**: Docker & Docker Compose
+
+### Design Patterns
+
+- **Repository Pattern**: Tách biệt logic database
+- **Service Layer**: Business logic tập trung
+- **Validator Pattern**: Validation dữ liệu chuyên sâu
+- **Interceptor**: Transform response và logging
+- **Guard**: Bảo mật và authorization
+- **Decorator**: Custom decorators cho metadata
+
+## 📁 Cấu trúc dự án
+
+```
+src/
+├── 🏗️ app.module.ts              # Root module
+├── 🚀 main.ts                    # Application bootstrap
+├── ⚙️ config/                    # Configuration modules
+│   ├── prisma/                   # Database configuration
+│   └── elasticsearch/            # Search configuration
+├── 🔧 core/                      # Core utilities
+│   ├── global-validation.pipe.ts # Global validation
+│   ├── transform.interceptor.ts  # Response transformation
+│   └── customize.ts              # Custom decorators
+├── 📦 modules/                   # Business modules
+│   ├── 🔐 auth/                  # Authentication & Authorization
+│   ├── 👤 user/                  # User management
+│   ├── 🎯 test/                  # Test management
+│   ├── 📊 test-result/           # Test results & scoring
+│   ├── 🏢 english_center/        # Center management
+│   ├── 📚 course/                # Course management
+│   ├── ✅ user-answer/           # User answers tracking
+│   ├── 🕐 test-session/          # Test session management
+│   ├── 🎓 mock-exam/             # Mock examinations
+│   ├── 🔔 notification/          # Notification system
+│   ├── 🤖 ai-recommendation/     # AI recommendations
+│   └── 📈 report/                # Reporting system
+├── 🗃️ repository/                # Base repository pattern
+├── 🛠️ utils/                     # Utility functions
+└── 🔒 constants/                 # Application constants
 ```
 
-## Compile and run the project
+## 🚀 Cài đặt và chạy dự án
+
+### Prerequisites
+
+- Node.js 18+
+- PostgreSQL 14+
+- Redis 6+
+- Elasticsearch 7.10+
+- Docker & Docker Compose
+
+### 1. Clone repository
 
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+git clone <repository-url>
+cd ionic_backend
 ```
 
-## Run tests
+### 2. Cài đặt dependencies
 
 ```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+yarn install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 3. Setup môi trường
 
 ```bash
-$ yarn install -g mau
-$ mau deploy
+# Copy và cấu hình env
+cp .env.example .env
+
+# Chỉnh sửa .env với thông tin database, redis, elasticsearch
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 4. Khởi động services với Docker
 
-## Resources
+```bash
+# Start PostgreSQL, Redis, Elasticsearch
+docker-compose up -d
 
-Check out a few resources that may come in handy when working with NestJS:
+# Hoặc start từng service
+docker-compose up postgres redis elasticsearch
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 5. Database setup
 
-## Support
+```bash
+# Generate Prisma client
+npx prisma generate
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Run migrations
+npx prisma migrate dev
 
-## Stay in touch
+# Seed initial data (optional)
+npx prisma db seed
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 6. Chạy application
 
-## License
+```bash
+# Development mode
+yarn start:dev
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-"# ionic_backend" 
+# Production mode
+yarn build
+yarn start:prod
+
+# Debug mode
+yarn start:debug
+```
+
+## 🔧 Scripts có sẵn
+
+```bash
+# Development
+yarn start:dev          # Chạy với hot reload
+yarn start:debug        # Chạy với debug mode
+
+# Building
+yarn build              # Build production
+yarn start:prod         # Chạy production build
+
+# Testing
+yarn test               # Unit tests
+yarn test:e2e           # End-to-end tests
+yarn test:cov           # Test coverage
+
+# Code Quality
+yarn lint               # ESLint check
+yarn format             # Prettier format
+
+# Database
+npx prisma studio       # Database GUI
+npx prisma migrate dev  # Run migrations
+npx prisma generate     # Generate Prisma client
+```
+
+## 📚 API Documentation
+
+### Swagger UI
+
+Sau khi start server, truy cập API documentation tại:
+
+### Endpoints chính
+
+#### Authentication
+
+- `POST /auth/login` - Đăng nhập
+- `POST /auth/register` - Đăng ký
+- `POST /auth/refresh` - Refresh token
+- `POST /auth/logout` - Đăng xuất
+
+#### Test Management
+
+- `GET /tests` - Danh sách bài thi
+- `POST /tests` - Tạo bài thi mới
+- `GET /tests/:id` - Chi tiết bài thi
+- `PUT /tests/:id` - Cập nhật bài thi
+
+#### Test Session
+
+- `POST /test-sessions` - Bắt đầu thi
+- `PUT /test-sessions/:id` - Cập nhật session
+- `POST /test-sessions/:id/submit` - Nộp bài thi
+
+#### User Answers
+
+- `POST /user-answers` - Lưu câu trả lời
+- `GET /user-answers/session/:sessionId` - Lấy answers theo session
+
+#### Test Results
+
+- `GET /test-results` - Danh sách kết quả
+- `GET /test-results/:id` - Chi tiết kết quả
+- `POST /test-results/calculate` - Tính toán điểm
+
+## 🗄️ Database Schema
+
+### Core Tables
+
+- **users**: Thông tin người dùng
+- **roles**: Vai trò hệ thống
+- **english_centers**: Trung tâm Anh ngữ
+- **tests**: Bài thi IELTS
+- **test_questions**: Câu hỏi thi
+- **test_sessions**: Phiên thi
+- **test_results**: Kết quả thi
+- **user_answers**: Câu trả lời người dùng
+
+### Assessment Tables
+
+- **writing_assessments**: Đánh giá Writing
+- **speaking_assessments**: Đánh giá Speaking
+- **speaking_part_attempts**: Chi tiết Speaking parts
+
+### Supporting Tables
+
+- **courses**: Khóa học
+- **course_enrollments**: Đăng ký khóa học
+- **notifications**: Thông báo
+- **system_logs**: Logs hệ thống
+
+## 🔐 Bảo mật
+
+### Authentication & Authorization
+
+- **JWT Tokens**: Access token (15min) + Refresh token (7 days)
+- **Role-based Access**: Phân quyền chi tiết theo role và resource
+- **Route Guards**: Bảo vệ endpoints với custom guards
+- **Rate Limiting**: Giới hạn request để chống spam
+
+### Data Security
+
+- **Password Hashing**: bcrypt với salt rounds cao
+- **Input Validation**: Class-validator cho tất cả DTOs
+- **SQL Injection Prevention**: Prisma ORM với prepared statements
+- **CORS Configuration**: Cấu hình CORS chặt chẽ
+
+## 📊 Monitoring & Logging
+
+### Application Logging
+
+- **Winston Logger**: Structured logging với multiple transports
+- **Request Logging**: Log tất cả HTTP requests
+- **Error Tracking**: Chi tiết error logs với stack trace
+- **Performance Monitoring**: Response time tracking
+
+### Health Checks
+
+- **Database Health**: Kiểm tra kết nối PostgreSQL
+- **Redis Health**: Kiểm tra kết nối Redis
+- **Elasticsearch Health**: Kiểm tra search service
+
+## 🚀 Deployment
+
+### Docker Deployment
+
+```bash
+# Build Docker image
+docker build -t ielts-backend .
+
+# Run with Docker Compose
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### Environment Variables
+
+```env
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/ielts_db"
+
+# Redis
+REDIS_HOST="localhost"
+REDIS_PORT=6379
+
+# Elasticsearch
+ELASTICSEARCH_URL="http://localhost:9200"
+
+# JWT
+JWT_SECRET="your-secret-key"
+JWT_EXPIRES_IN="15m"
+REFRESH_TOKEN_SECRET="your-refresh-secret"
+REFRESH_TOKEN_EXPIRES_IN="7d"
+
+# Application
+PORT=5176
+NODE_ENV="production"
+```
+
+## 🤝 Đóng góp
+
+### Development Workflow
+
+1. Fork repository
+2. Tạo feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Tạo Pull Request
+
+### Code Standards
+
+- **ESLint + Prettier**: Code formatting tự động
+- **Conventional Commits**: Commit message chuẩn
+- **TypeScript Strict**: Strict mode cho type safety
+- **Test Coverage**: Minimum 80% coverage cho core modules
+
+## 📞 Hỗ trợ
+
+### Documentation
+
+- [MODULES_README.md](./MODULES_README.md) - Chi tiết kiến trúc modules
+- [API Documentation](http://localhost:5176/api) - Swagger UI
+- [Database Schema](./prisma/schema.prisma) - Prisma schema
+
+### Contact
+
+- **Project Lead**: [Your Name]
+- **Email**: [your.email@example.com]
+- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+
+---
+
+## 📝 License
+
+Dự án này được phân phối dưới giấy phép MIT. Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
+
+---
+
+<p align="center">
+  Made with ❤️ by IELTS Development Team
+</p>
