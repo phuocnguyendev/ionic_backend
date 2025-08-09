@@ -1,12 +1,26 @@
-import { IsString, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
-export class CreatepermissionDto {
+export class CreatePermissionDto {
+  @ApiProperty({ example: 'uuid-role-id' })
   @IsString()
-  name: string;
+  @IsNotEmpty()
+  @IsUUID()
+  role_id: string;
 
-  @IsOptional()
+  @ApiProperty({
+    example: 'read',
+    description: 'Permission type: read, write, update, delete, manage',
+  })
   @IsString()
-  description?: string;
+  @IsNotEmpty()
+  permission_type: string;
 
-  // TODO: Add specific fields for permission
+  @ApiProperty({
+    example: 'test',
+    description: 'Resource type: test, user, course, result, etc.',
+  })
+  @IsString()
+  @IsNotEmpty()
+  resource_type: string;
 }
