@@ -15,7 +15,10 @@ async function bootstrap() {
   });
   const reflector = app.get(Reflector);
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') ?? 5176;
+  const port =
+    process.env.NODE_ENV === 'production'
+      ? parseInt(process.env.PORT || '3000', 10)
+      : (configService.get<number>('PORT') ?? 5176);
 
   app.use(cookieParser());
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
