@@ -10,7 +10,9 @@ import { TransformInterceptor } from './core/transform.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: true,
+  });
   const reflector = app.get(Reflector);
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') ?? 5176;
@@ -45,7 +47,7 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(
     `Application is running on: http://localhost:${port} successfully.`,
   );
